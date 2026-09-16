@@ -3,7 +3,10 @@ import { PEC_DEPARTMENTS, PEC_CLUBS } from './pec_clubs_data';
 
 export async function migratePECClubs(): Promise<void> {
   try {
-    // 1. Ensure institutions record exists with Pragati University
+    const bcrypt = await import('bcryptjs');
+    const pwdHash = await bcrypt.default.hash('Password123!', 10);
+
+    // 0. Ensure all prerequisite parent tables & records exist to prevent foreign key errors
     execute(`
       INSERT OR REPLACE INTO institutions (id, name, short_name, logo_url, website)
       VALUES (
@@ -15,13 +18,59 @@ export async function migratePECClubs(): Promise<void> {
       )
     `);
 
-    // 2. Ensure all 11 departments exist
+    const academicYears = [
+      { id: 'ay-2025-26', name: '2025-2026', start_date: '2025-07-01', end_date: '2026-06-30', is_current: 1 },
+      { id: 'ay-2024-25', name: '2024-2025', start_date: '2024-07-01', end_date: '2025-06-30', is_current: 0 },
+    ];
+    for (const ay of academicYears) {
+      execute(
+        'INSERT OR IGNORE INTO academic_years (id, name, start_date, end_date, is_current) VALUES (?, ?, ?, ?, ?)',
+        [ay.id, ay.name, ay.start_date, ay.end_date, ay.is_current]
+      );
+    }
+
+    const roles = [
+      { id: 'role-super-admin', name: 'SUPER_ADMIN', description: 'Complete system-wide administrative control' },
+      { id: 'role-dept-admin', name: 'DEPARTMENT_ADMIN', description: 'Department-level supervisor and analytics manager' },
+      { id: 'role-faculty', name: 'FACULTY_COORDINATOR', description: 'Faculty advisor approving teams, events, and reviewing projects' },
+      { id: 'role-club-admin', name: 'CLUB_ADMIN', description: 'Club leader managing events, members, attendance, and resources' },
+      { id: 'role-club-member', name: 'CLUB_MEMBER', description: 'Enrolled club member participating in activities' },
+      { id: 'role-student', name: 'STUDENT', description: 'Registered college student' },
+    ];
+    for (const r of roles) {
+      execute('INSERT OR IGNORE INTO roles (id, name, description) VALUES (?, ?, ?)', [r.id, r.name, r.description]);
+    }
+
     for (const dept of PEC_DEPARTMENTS) {
       execute(
         `INSERT OR REPLACE INTO departments (id, name, code, description)
          VALUES (?, ?, ?, ?)`,
         [dept.id, dept.name, dept.code, dept.description]
       );
+    }
+
+    const baseUsers = [
+      { id: 'usr-clubadmin', email: 'alex.clubadmin@techclubs.edu', name: 'Alex Rivera', role: 'role-club-admin', dept: 'dept-cse' },
+      { id: 'usr-superadmin', email: 'superadmin@techclubs.edu', name: 'Dr. Evelyn Vance', role: 'role-super-admin', dept: 'dept-cse' },
+      { id: 'usr-deptadmin', email: 'deptadmin.cse@techclubs.edu', name: 'Prof. Marcus Brody', role: 'role-dept-admin', dept: 'dept-cse' },
+      { id: 'usr-faculty', email: 'dr.sharma@techclubs.edu', name: 'Dr. Anand Sharma', role: 'role-faculty', dept: 'dept-cse' },
+      { id: 'usr-pec-admin', email: 'admin@pragati.ac.in', name: 'Dr. S. Sambhu Prasad', role: 'role-super-admin', dept: 'dept-cse' },
+      { id: 'usr-pec-hod-cse', email: 'deptadmin.cse@pragati.ac.in', name: 'Dr. M. Radhika Mani', role: 'role-dept-admin', dept: 'dept-cse' },
+      { id: 'usr-pec-faculty-ece', email: 'faculty.ece@pragati.ac.in', name: 'Dr. V. Sailaja', role: 'role-faculty', dept: 'dept-ece' },
+      { id: 'usr-pec-president-cse', email: 'president.cse@pragati.ac.in', name: 'K. Sai Varun', role: 'role-club-admin', dept: 'dept-cse' },
+      { id: 'usr-pec-student-cse', email: 'student.cse@pragati.ac.in', name: 'M. Ananya', role: 'role-club-member', dept: 'dept-cse' },
+      { id: 'usr-pec-student-ece', email: 'student.ece@pragati.ac.in', name: 'P. Rohit Kumar', role: 'role-club-member', dept: 'dept-ece' },
+    ];
+
+    for (const u of baseUsers) {
+      const existing = queryOne('SELECT id FROM users WHERE id = ? OR email = ?', [u.id, u.email]);
+      if (!existing) {
+        execute('INSERT INTO users (id, email, password_hash, is_active, is_verified) VALUES (?, ?, ?, 1, 1)', [u.id, u.email, pwdHash]);
+        execute('INSERT INTO profiles (user_id, name, department_id) VALUES (?, ?, ?)', [u.id, u.name, u.dept]);
+        execute('INSERT OR IGNORE INTO user_roles (user_id, role_id) VALUES (?, ?)', [u.id, u.role]);
+      } else {
+        execute('INSERT OR IGNORE INTO user_roles (user_id, role_id) VALUES (?, ?)', [existing.id, u.role]);
+      }
     }
 
     // 3. Migrate any legacy mock clubs so foreign keys don't break
@@ -95,8 +144,8 @@ export async function migratePECClubs(): Promise<void> {
         try { execute('UPDATE resources SET club_id = ? WHERE club_id = ?', [newId, oldId]); } catch {}
         try { execute('UPDATE gallery SET club_id = ? WHERE club_id = ?', [newId, oldId]); } catch {}
 
-        // Remove old mock club
-        execute('DELETE FROM clubs WHERE id = ?', [oldId]);
+        // Remove old mock club safely
+        try { execute('DELETE FROM clubs WHERE id = ?', [oldId]); } catch {}
       }
     }
 
@@ -156,10 +205,12 @@ export async function migratePECClubs(): Promise<void> {
       }
 
       // Ensure at least one coordinator mapping for admin actions
-      execute(
-        'INSERT OR IGNORE INTO club_coordinators (club_id, user_id, role_title) VALUES (?, ?, ?)',
-        [club.id, 'usr-clubadmin', 'Club President']
-      );
+      try {
+        execute(
+          'INSERT OR IGNORE INTO club_coordinators (club_id, user_id, role_title) VALUES (?, ?, ?)',
+          [club.id, 'usr-clubadmin', 'Club President']
+        );
+      } catch {}
     }
 
     // 5. Cleanup any other clubs not in the 35 list
@@ -178,9 +229,6 @@ export async function migratePECClubs(): Promise<void> {
     console.log(`[Migration] Verified: Exactly ${totalClubs?.cnt} official Pragati University clubs present in database.`);
 
     // 6. Ensure official Pragati University sample accounts exist with bcrypt password
-    const bcrypt = await import('bcryptjs');
-    const pwdHash = await bcrypt.default.hash('Password123!', 10);
-
     const institutionalUsers = [
       {
         id: 'usr-pec-admin',
@@ -195,7 +243,7 @@ export async function migratePECClubs(): Promise<void> {
         role_id: 'role-super-admin',
       },
       {
-        id: 'usr-pec-faculty',
+        id: 'usr-pec-faculty-ece',
         email: 'faculty.ece@pragati.ac.in',
         name: 'Dr. V. Sailaja',
         student_id: 'PRAG-FAC-042',
@@ -207,7 +255,7 @@ export async function migratePECClubs(): Promise<void> {
         role_id: 'role-faculty',
       },
       {
-        id: 'usr-pec-student',
+        id: 'usr-pec-student-cse',
         email: 'student.cse@pragati.ac.in',
         name: 'K. Sai Varun',
         student_id: '23A31A0501',
@@ -245,6 +293,9 @@ export async function migratePECClubs(): Promise<void> {
         execute('INSERT OR IGNORE INTO user_roles (user_id, role_id) VALUES (?, ?)', [u.id, u.role_id]);
       }
     }
+    // 7. Run real data enrichment
+    const { enrichPECDatabase } = await import('./pec_enrichment');
+    await enrichPECDatabase();
   } catch (err) {
     console.error('[PEC Migration Error]', err);
   }

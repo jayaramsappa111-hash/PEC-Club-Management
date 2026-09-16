@@ -159,6 +159,82 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 });
 
 // Current User profile & permissions
+router.post('/firebase-sync', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, name, uid, photoURL } = req.body;
+    if (!email) {
+      res.status(400).json({ error: 'Email is required for Firebase account sync' });
+      return;
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    let user = queryOne<{ id: string; email: string; is_active: number }>(
+      'SELECT id, email, is_active FROM users WHERE LOWER(email) = ?',
+      [cleanEmail]
+    );
+
+    let userId = user?.id;
+
+    if (!user) {
+      userId = `usr-${uid || Date.now()}`;
+      const randomPasswordHash = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
+      execute(
+        'INSERT INTO users (id, email, password_hash, is_active, is_verified) VALUES (?, ?, ?, 1, 1)',
+        [userId, cleanEmail, randomPasswordHash]
+      );
+      execute(
+        `INSERT INTO profiles (user_id, student_id, name, photograph, department_id, course)
+         VALUES (?, ?, ?, ?, 'dept-cse', 'B.Tech')`,
+        [userId, `STU-${Date.now().toString().slice(-6)}`, name || cleanEmail.split('@')[0], photoURL || null]
+      );
+      execute('INSERT OR IGNORE INTO user_roles (user_id, role_id) VALUES (?, ?)', [userId, 'role-student']);
+    }
+
+    const profile = queryOne<{ name: string; student_id: string; department_id: string; course: string; photograph: string }>(
+      'SELECT name, student_id, department_id, course, photograph FROM profiles WHERE user_id = ?',
+      [userId]
+    );
+
+    const userRoles = queryAll<{ name: string }>(
+      `SELECT r.name FROM roles r JOIN user_roles ur ON ur.role_id = r.id WHERE ur.user_id = ?`,
+      [userId]
+    );
+    const roles = userRoles.map(r => r.name);
+
+    const userPerms = queryAll<{ name: string }>(
+      `SELECT DISTINCT p.name FROM permissions p
+       JOIN role_permissions rp ON rp.permission_id = p.id
+       JOIN user_roles ur ON ur.role_id = rp.role_id
+       WHERE ur.user_id = ?`,
+      [userId]
+    );
+    const permissions = userPerms.map(p => p.name);
+
+    const token = generateToken({ id: userId!, email: cleanEmail });
+
+    logAudit(userId!, 'FIREBASE_AUTH_SYNC', 'USER', userId!, { email: cleanEmail });
+
+    res.json({
+      token,
+      user: {
+        id: userId,
+        email: cleanEmail,
+        name: profile?.name || name || cleanEmail.split('@')[0],
+        student_id: profile?.student_id,
+        roles: roles.length > 0 ? roles : ['STUDENT'],
+        permissions: permissions.length > 0 ? permissions : ['clubs.read', 'events.read'],
+        department_id: profile?.department_id,
+        course: profile?.course,
+        photograph: profile?.photograph || photoURL
+      }
+    });
+  } catch (err: any) {
+    console.error('[Firebase Sync Error]:', err);
+    res.status(500).json({ error: 'Failed to synchronize Firebase session with university directory' });
+  }
+});
+
+// Current User profile & permissions
 router.get('/me', authenticate, (req: Request, res: Response): void => {
   const reqUser = (req as any).user as AuthenticatedUser;
   const profile = queryOne<any>(

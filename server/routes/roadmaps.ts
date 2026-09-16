@@ -21,8 +21,8 @@ router.get('/', optionalAuthenticate, (req: Request, res: Response) => {
     if (user && r.total_modules > 0) {
       const completedRow = queryOne<{ count: number }>(
         `SELECT COUNT(*) as count FROM student_roadmap_progress srp
-         WHERE srp.roadmap_id = r.id AND srp.user_id = ?`,
-        [user.id]
+         WHERE srp.roadmap_id = ? AND srp.user_id = ?`,
+        [r.id, user.id]
       );
       r.completed_modules = completedRow?.count || 0;
       r.progress_percentage = Math.round((r.completed_modules / r.total_modules) * 100);

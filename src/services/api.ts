@@ -29,8 +29,53 @@ export class ApiError extends Error {
   }
 }
 
+const AUTH_TOKEN_KEY = 'tc_auth_token';
+type UnauthorizedHandler = () => void;
+const unauthorizedListeners: Set<UnauthorizedHandler> = new Set();
+
+export function getAuthToken(): string | null {
+  try {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthToken(token: string): void {
+  try {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  } catch (err) {
+    console.error('Failed to store auth token', err);
+  }
+}
+
+export function removeAuthToken(): void {
+  try {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+  } catch (err) {
+    console.error('Failed to remove auth token', err);
+  }
+}
+
+export function onUnauthorized(handler: UnauthorizedHandler): () => void {
+  unauthorizedListeners.add(handler);
+  return () => {
+    unauthorizedListeners.delete(handler);
+  };
+}
+
+function notifyUnauthorized(): void {
+  unauthorizedListeners.forEach((fn) => {
+    try {
+      fn();
+    } catch (e) {
+      console.error('Error in unauthorized listener', e);
+    }
+  });
+}
+
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('tc_auth_token');
+  const token = getAuthToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
@@ -44,6 +89,10 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     ...options,
     headers,
   });
+
+  if (res.status === 401) {
+    notifyUnauthorized();
+  }
 
   if (!res.ok) {
     let errorMsg = `Request failed with status ${res.status}`;
@@ -74,6 +123,11 @@ export const api = {
         body: JSON.stringify(data),
       }),
     getMe: () => request<{ user: AuthenticatedUser }>('/auth/me'),
+    firebaseSync: (data: { email: string; name?: string; uid?: string; photoURL?: string }) =>
+      request<{ token: string; user: AuthenticatedUser }>('/auth/firebase-sync', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     updateProfile: (data: { name?: string; phone?: string; bio?: string; skills?: string; course?: string; photograph?: string }) =>
       request<{ message: string }>('/auth/profile', {
         method: 'PATCH',
@@ -347,17 +401,23 @@ export const api = {
       return `${BASE_URL}/reports/export/pdf${q ? `?${q}` : ''}`;
     },
     exportCsv: async (type: string = 'general'): Promise<Blob> => {
-      const token = localStorage.getItem('tech_club_token');
+      const token = getAuthToken();
       const res = await fetch(`${BASE_URL}/reports/export/excel?type=${type}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
+      if (res.status === 401) {
+        notifyUnauthorized();
+      }
       return res.blob();
     },
     generatePdf: async (type: string = 'summary'): Promise<Blob> => {
-      const token = localStorage.getItem('tech_club_token');
+      const token = getAuthToken();
       const res = await fetch(`${BASE_URL}/reports/export/pdf?type=${type}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
+      if (res.status === 401) {
+        notifyUnauthorized();
+      }
       return res.blob();
     },
   },

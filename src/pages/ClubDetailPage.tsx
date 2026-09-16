@@ -405,7 +405,7 @@ export const ClubDetailPage: React.FC<ClubDetailPageProps> = ({ clubId, onNaviga
                 <div key={evt.id} className="p-5 rounded-xl bg-white border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-900 border border-blue-200">
-                      {evt.type}
+                      {evt.event_type || (evt as any).type || 'WORKSHOP'}
                     </span>
                     <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
                       {evt.status}
@@ -416,7 +416,7 @@ export const ClubDetailPage: React.FC<ClubDetailPageProps> = ({ clubId, onNaviga
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
                     <div className="flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5 text-blue-900" />
-                      <span>{new Date(evt.start_time).toLocaleDateString()}</span>
+                      <span>{new Date(evt.start_datetime || (evt as any).start_time || Date.now()).toLocaleDateString()}</span>
                     </div>
                     <button
                       onClick={() => onNavigate('event-detail', evt.id)}
@@ -506,7 +506,7 @@ export const ClubDetailPage: React.FC<ClubDetailPageProps> = ({ clubId, onNaviga
                   <h4 className="text-sm font-bold text-slate-900">{proj.title}</h4>
                   <p className="text-xs text-slate-600 line-clamp-2">{proj.description}</p>
                   <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-                    Lead: <span className="font-semibold text-slate-800">{proj.creator_name || 'PEC Student'}</span>
+                    Lead: <span className="font-semibold text-slate-800">{proj.creator_name || proj.owner_name || 'PEC Student Lead'}</span>
                   </div>
                 </div>
               ))}
@@ -534,17 +534,17 @@ export const ClubDetailPage: React.FC<ClubDetailPageProps> = ({ clubId, onNaviga
                     <BookOpen className="w-5 h-5 text-blue-900 shrink-0" />
                     <div>
                       <div className="text-xs font-bold text-slate-900">{res.title}</div>
-                      <div className="text-[10px] text-slate-500">{res.category || 'Study Material'}</div>
+                      <div className="text-[10px] text-slate-500">{res.type || res.category || 'Study Material'} &bull; {res.difficulty || 'Intermediate'}</div>
                     </div>
                   </div>
-                  {res.url && (
+                  {(res.file_url || res.url) && (
                     <a
-                      href={res.url}
+                      href={res.file_url || res.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1 shrink-0"
                     >
-                      <span>Open</span>
+                      <span>Access</span>
                       <ExternalLink className="w-3 h-3 text-slate-500" />
                     </a>
                   )}
