@@ -33,7 +33,12 @@ async function startServer() {
   await seedDatabase();
 
   // Middlewares
-  app.use(cors());
+  app.use(cors({
+    origin: '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
   app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ extended: true, limit: '15mb' }));

@@ -16,7 +16,16 @@ import {
   PlatformMetrics
 } from '../types';
 
-const BASE_URL = '/api/v1';
+const getApiBaseUrl = (): string => {
+  const envApiUrl = import.meta.env.VITE_API_URL;
+  if (envApiUrl && typeof envApiUrl === 'string' && envApiUrl.trim().length > 0) {
+    const cleanUrl = envApiUrl.trim().replace(/\/+$/, '');
+    return cleanUrl.endsWith('/api/v1') ? cleanUrl : `${cleanUrl}/api/v1`;
+  }
+  return '/api/v1';
+};
+
+const BASE_URL = getApiBaseUrl();
 
 export class ApiError extends Error {
   status: number;

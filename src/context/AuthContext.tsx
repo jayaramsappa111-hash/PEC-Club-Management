@@ -30,6 +30,7 @@ interface AuthContextType {
   login: (emailOrId: string, pass: string) => Promise<void>;
   register: (data: any) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: (reason?: string) => Promise<void>;
   refreshUser: () => Promise<void>;
   switchRoleUser: (role: 'SUPER_ADMIN' | 'FACULTY_COORDINATOR' | 'CLUB_ADMIN' | 'CLUB_MEMBER' | 'STUDENT') => Promise<void>;
@@ -274,7 +275,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithGoogle = async () => {
+  const signInWithGoogle = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -283,6 +284,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!fbUser || !fbUser.email) {
         throw new Error('No email returned from Google authentication');
       }
+
+      setFirebaseUser(fbUser);
 
       const syncRes = await api.auth.firebaseSync({
         email: fbUser.email,
@@ -311,6 +314,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }
   };
+
+  const loginWithGoogle = signInWithGoogle;
 
   const logout = async (reason?: string) => {
     try {
@@ -369,6 +374,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         loginWithGoogle,
+        signInWithGoogle,
         logout,
         refreshUser,
         switchRoleUser,
