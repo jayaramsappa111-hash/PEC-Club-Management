@@ -34,12 +34,12 @@ import type { Club, Membership, Event, EventRegistration, EventAttendance, Certi
 // Build Firebase configuration using environment variables or fallback JSON configuration
 const getFirebaseConfig = () => {
   const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env || {};
-  if (metaEnv.VITE_FIREBASE_API_KEY) {
+  if (metaEnv.VITE_FIREBASE_API_KEY && metaEnv.VITE_FIREBASE_API_KEY !== 'demo-api-key') {
     return {
       apiKey: metaEnv.VITE_FIREBASE_API_KEY,
       authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || `${metaEnv.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
       projectId: metaEnv.VITE_FIREBASE_PROJECT_ID,
-      storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || `${metaEnv.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
+      storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || `${metaEnv.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
       messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID,
       appId: metaEnv.VITE_FIREBASE_APP_ID,
     };
@@ -54,8 +54,8 @@ let app;
 try {
   app = getApps().length > 0 ? getApp() : initializeApp(resolvedConfig);
 } catch (e) {
-  console.warn('[Firebase Auth] Initialization warning:', e);
-  app = getApps().length > 0 ? getApp() : initializeApp({ apiKey: "demo-api-key", authDomain: "demo-app.firebaseapp.com", projectId: "demo-app" });
+  console.error('[Firebase Auth] Critical initialization error:', e);
+  app = getApps().length > 0 ? getApp() : initializeApp(resolvedConfig);
 }
 
 // Initialize and export Auth and Firestore instances for use across the application

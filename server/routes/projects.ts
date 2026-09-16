@@ -9,60 +9,64 @@ import { createNotification } from '../services/notification_service';
 const router = express.Router();
 
 // Get projects list
-router.get('/', optionalAuthenticate, (req: Request, res: Response) => {
-  const { domain, department_id, status, is_featured, search, my } = req.query;
+router.get('/', optionalAuthenticate, (req: Request, res: Response, next) => {
+  try {
+    const { domain, department_id, status, is_featured, search, my } = req.query;
 
-  let sql = `
-    SELECT p.*, d.name as department_name, d.code as department_code,
-           ay.name as academic_year_name,
-           cp.name as creator_name, cp.student_id as creator_roll,
-           (SELECT AVG(rating) FROM project_reviews pr WHERE pr.project_id = p.id) as avg_rating,
-           (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id) as team_size
-    FROM projects p
-    LEFT JOIN departments d ON d.id = p.department_id
-    LEFT JOIN academic_years ay ON ay.id = p.academic_year_id
-    JOIN profiles cp ON cp.user_id = p.created_by
-    WHERE 1=1
-  `;
-  const params: any[] = [];
+    let sql = `
+      SELECT p.*, d.name as department_name, d.code as department_code,
+             ay.name as academic_year_name,
+             cp.name as creator_name, cp.student_id as creator_roll,
+             (SELECT AVG(rating) FROM project_reviews pr WHERE pr.project_id = p.id) as avg_rating,
+             (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id) as team_size
+      FROM projects p
+      LEFT JOIN departments d ON d.id = p.department_id
+      LEFT JOIN academic_years ay ON ay.id = p.academic_year_id
+      LEFT JOIN profiles cp ON cp.user_id = p.created_by
+      WHERE 1=1
+    `;
+    const params: any[] = [];
 
-  const user = (req as any).user;
-  if (my && user) {
-    sql += ' AND (p.created_by = ? OR EXISTS (SELECT 1 FROM project_members pm WHERE pm.project_id = p.id AND pm.user_id = ?))';
-    params.push(user.id, user.id);
-  } else if (!user || !user.roles.some((r: string) => ['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'DEPARTMENT_ADMIN'].includes(r))) {
-    // Public/student only sees approved and published unless viewing own
-    sql += " AND p.status IN ('APPROVED', 'PUBLISHED')";
-  } else if (status) {
-    sql += ' AND p.status = ?';
-    params.push(status);
+    const user = (req as any).user;
+    if (my && user) {
+      sql += ' AND (p.created_by = ? OR EXISTS (SELECT 1 FROM project_members pm WHERE pm.project_id = p.id AND pm.user_id = ?))';
+      params.push(user.id, user.id);
+    } else if (!user || !user.roles.some((r: string) => ['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'DEPARTMENT_ADMIN'].includes(r))) {
+      // Public/student only sees approved and published unless viewing own
+      sql += " AND p.status IN ('APPROVED', 'PUBLISHED')";
+    } else if (status) {
+      sql += ' AND p.status = ?';
+      params.push(status);
+    }
+
+    if (domain) {
+      sql += ' AND p.domain LIKE ?';
+      params.push(`%${domain}%`);
+    }
+
+    if (department_id) {
+      sql += ' AND p.department_id = ?';
+      params.push(department_id);
+    }
+
+    if (is_featured !== undefined && is_featured !== '') {
+      sql += ' AND p.is_featured = ?';
+      params.push(Number(is_featured));
+    }
+
+    if (search) {
+      sql += ' AND (p.title LIKE ? OR p.description LIKE ? OR p.technologies LIKE ?)';
+      const sp = `%${search}%`;
+      params.push(sp, sp, sp);
+    }
+
+    sql += ' ORDER BY p.is_featured DESC, p.created_at DESC';
+
+    const projects = queryAll(sql, params);
+    res.json({ projects });
+  } catch (err) {
+    next(err);
   }
-
-  if (domain) {
-    sql += ' AND p.domain LIKE ?';
-    params.push(`%${domain}%`);
-  }
-
-  if (department_id) {
-    sql += ' AND p.department_id = ?';
-    params.push(department_id);
-  }
-
-  if (is_featured !== undefined && is_featured !== '') {
-    sql += ' AND p.is_featured = ?';
-    params.push(Number(is_featured));
-  }
-
-  if (search) {
-    sql += ' AND (p.title LIKE ? OR p.description LIKE ? OR p.technologies LIKE ?)';
-    const sp = `%${search}%`;
-    params.push(sp, sp, sp);
-  }
-
-  sql += ' ORDER BY p.is_featured DESC, p.created_at DESC';
-
-  const projects = queryAll(sql, params);
-  res.json({ projects });
 });
 
 // Single project

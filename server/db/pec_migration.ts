@@ -1,10 +1,11 @@
+import bcrypt from 'bcryptjs';
 import { db, queryAll, queryOne, execute } from './database';
 import { PEC_DEPARTMENTS, PEC_CLUBS } from './pec_clubs_data';
+import { enrichPECDatabase } from './pec_enrichment';
 
 export async function migratePECClubs(): Promise<void> {
   try {
-    const bcrypt = await import('bcryptjs');
-    const pwdHash = await bcrypt.default.hash('Password123!', 10);
+    const pwdHash = await bcrypt.hash('Password123!', 10);
 
     // 0. Ensure all prerequisite parent tables & records exist to prevent foreign key errors
     execute(`
@@ -303,7 +304,6 @@ export async function migratePECClubs(): Promise<void> {
       }
     }
     // 7. Run real data enrichment
-    const { enrichPECDatabase } = await import('./pec_enrichment');
     await enrichPECDatabase();
   } catch (err) {
     console.error('[PEC Migration Error]', err);

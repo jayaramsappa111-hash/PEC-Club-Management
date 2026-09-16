@@ -233,13 +233,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-hidden focus:border-navy-900 focus:ring-1 focus:ring-navy-900"
                   >
                     <option value="dept-cse">Computer Science &amp; Engg (CSE)</option>
-                    <option value="dept-aids">AI &amp; Data Science (AI&amp;DS)</option>
-                    <option value="dept-aiml">AI &amp; Machine Learning (AI&amp;ML)</option>
+                    <option value="dept-cseds">AI &amp; Data Science / CSE (Data Science)</option>
+                    <option value="dept-cseaiml">AI &amp; Machine Learning / CSE (AI &amp; ML)</option>
+                    <option value="dept-csecs">CSE (Cyber Security)</option>
                     <option value="dept-ece">Electronics &amp; Comm. (ECE)</option>
                     <option value="dept-eee">Electrical &amp; Electronics (EEE)</option>
                     <option value="dept-it">Information Tech (IT)</option>
-                    <option value="dept-mech">Mechanical Engg (MECH)</option>
-                    <option value="dept-civil">Civil Engg (CIVIL)</option>
+                    <option value="dept-me">Mechanical Engg (MECH)</option>
+                    <option value="dept-ce">Civil Engg (CIVIL)</option>
+                    <option value="dept-bsh">Basic Sciences &amp; Humanities (BSH)</option>
                   </select>
                 </div>
               </div>

@@ -10,46 +10,50 @@ import { generateQRCodeDataURL } from '../services/qr_service';
 const router = express.Router();
 
 // List events
-router.get('/', optionalAuthenticate, (req: Request, res: Response) => {
-  const { club_id, status, event_type, search } = req.query;
+router.get('/', optionalAuthenticate, (req: Request, res: Response, next) => {
+  try {
+    const { club_id, status, event_type, search } = req.query;
 
-  let sql = `
-    SELECT e.*, c.name as club_name, c.logo as club_logo, c.slug as club_slug,
-           (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id AND er.status = 'CONFIRMED') as confirmed_registrations_count,
-           (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id AND er.status = 'WAITLISTED') as waitlisted_count,
-           (SELECT COUNT(*) FROM event_attendance ea WHERE ea.event_id = e.id) as attended_count,
-           (SELECT AVG(rating) FROM event_feedback ef WHERE ef.event_id = e.id) as avg_rating
-    FROM events e
-    JOIN clubs c ON c.id = e.club_id
-    WHERE 1=1
-  `;
-  const params: any[] = [];
+    let sql = `
+      SELECT e.*, c.name as club_name, COALESCE(c.logo_url, c.logo) as club_logo, c.slug as club_slug,
+             (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id AND er.status = 'CONFIRMED') as confirmed_registrations_count,
+             (SELECT COUNT(*) FROM event_registrations er WHERE er.event_id = e.id AND er.status = 'WAITLISTED') as waitlisted_count,
+             (SELECT COUNT(*) FROM event_attendance ea WHERE ea.event_id = e.id) as attended_count,
+             (SELECT AVG(rating) FROM event_feedback ef WHERE ef.event_id = e.id) as avg_rating
+      FROM events e
+      LEFT JOIN clubs c ON c.id = e.club_id
+      WHERE 1=1
+    `;
+    const params: any[] = [];
 
-  if (club_id) {
-    sql += ' AND e.club_id = ?';
-    params.push(club_id);
+    if (club_id) {
+      sql += ' AND e.club_id = ?';
+      params.push(club_id);
+    }
+
+    if (status) {
+      sql += ' AND e.status = ?';
+      params.push(status);
+    }
+
+    if (event_type) {
+      sql += ' AND e.event_type = ?';
+      params.push(event_type);
+    }
+
+    if (search) {
+      sql += ' AND (e.title LIKE ? OR e.description LIKE ? OR e.venue LIKE ?)';
+      const searchPattern = `%${search}%`;
+      params.push(searchPattern, searchPattern, searchPattern);
+    }
+
+    sql += ' ORDER BY e.start_datetime DESC';
+
+    const events = queryAll(sql, params);
+    res.json({ events });
+  } catch (err) {
+    next(err);
   }
-
-  if (status) {
-    sql += ' AND e.status = ?';
-    params.push(status);
-  }
-
-  if (event_type) {
-    sql += ' AND e.event_type = ?';
-    params.push(event_type);
-  }
-
-  if (search) {
-    sql += ' AND (e.title LIKE ? OR e.description LIKE ? OR e.venue LIKE ?)';
-    const searchPattern = `%${search}%`;
-    params.push(searchPattern, searchPattern, searchPattern);
-  }
-
-  sql += ' ORDER BY e.start_datetime DESC';
-
-  const events = queryAll(sql, params);
-  res.json({ events });
 });
 
 // My Registered Events
