@@ -496,13 +496,13 @@ export function initSchema() {
       }
     }
 
-    // Ensure Pragati Engineering College exists in institutions table
+    // Ensure Pragati University exists in institutions table
     db.exec(`
       INSERT OR REPLACE INTO institutions (id, name, short_name, logo_url, website)
       VALUES (
         'pec',
-        'Pragati Engineering College',
-        'PEC',
+        'Pragati University',
+        'PU',
         '/assets/institutions/pragati-engineering-college/logo.png',
         'https://pragati.ac.in/'
       );

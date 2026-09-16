@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, Layers, Calendar, ShieldCheck, BookOpen, Megaphone, Wrench, ArrowRight } from 'lucide-react';
+import { Search, X, Layers, Calendar, ShieldCheck, BookOpen, Megaphone, Wrench, ArrowRight, Building2 } from 'lucide-react';
 import { api } from '../services/api';
 
 interface GlobalSearchModalProps {
@@ -37,25 +37,25 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+      <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3 border-b border-slate-800">
+        <div className="flex items-center px-4 py-3 border-b border-slate-200 bg-slate-50">
           <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search clubs, events, projects, resources, roadmaps..."
-            className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
+            placeholder="Search PEC technical societies, workshops, circulars, roadmaps, project registry..."
+            className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden"
             autoFocus
           />
           {query && (
-            <button onClick={() => setQuery('')} className="text-slate-400 hover:text-white mr-2">
+            <button onClick={() => setQuery('')} className="text-slate-400 hover:text-slate-700 mr-2">
               <X className="w-4 h-4" />
             </button>
           )}
-          <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-800 rounded">
+          <button onClick={onClose} className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1 bg-white border border-slate-200 rounded font-mono">
             ESC
           </button>
         </div>
@@ -63,8 +63,8 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
         {/* Results Container */}
         <div className="p-4 overflow-y-auto space-y-4">
           {loading && (
-            <div className="text-center py-8 text-xs text-slate-400">
-              Searching database...
+            <div className="text-center py-8 text-xs text-slate-500">
+              Querying institutional records...
             </div>
           )}
 
@@ -73,9 +73,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               {/* Clubs */}
               {results.clubs?.length > 0 && (
                 <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-blue-400" />
-                    Clubs ({results.clubs.length})
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-blue-900" />
+                    Technical Clubs &amp; Chapters ({results.clubs.length})
                   </div>
                   <div className="space-y-1">
                     {results.clubs.map((c: any) => (
@@ -85,13 +85,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                           onNavigate('club-detail', c.id);
                           onClose();
                         }}
-                        className="p-2 rounded-lg hover:bg-slate-800 cursor-pointer flex items-center justify-between transition group"
+                        className="p-2.5 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-between transition group border border-transparent hover:border-slate-200"
                       >
                         <div>
-                          <div className="text-xs font-semibold text-white group-hover:text-blue-400">{c.name}</div>
-                          <div className="text-[11px] text-slate-400 line-clamp-1">{c.description}</div>
+                          <div className="text-xs font-bold text-slate-900 group-hover:text-blue-900">{c.name}</div>
+                          <div className="text-[11px] text-slate-500 line-clamp-1">{c.description}</div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 transition" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-900 transition" />
                       </div>
                     ))}
                   </div>
@@ -101,9 +101,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               {/* Events */}
               {results.events?.length > 0 && (
                 <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-                    Events ({results.events.length})
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-blue-900" />
+                    Scheduled Events &amp; Workshops ({results.events.length})
                   </div>
                   <div className="space-y-1">
                     {results.events.map((e: any) => (
@@ -113,13 +113,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                           onNavigate('event-detail', e.id);
                           onClose();
                         }}
-                        className="p-2 rounded-lg hover:bg-slate-800 cursor-pointer flex items-center justify-between transition group"
+                        className="p-2.5 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-between transition group border border-transparent hover:border-slate-200"
                       >
                         <div>
-                          <div className="text-xs font-semibold text-white group-hover:text-indigo-400">{e.title}</div>
-                          <div className="text-[11px] text-slate-400">{e.event_type} &bull; {e.venue}</div>
+                          <div className="text-xs font-bold text-slate-900 group-hover:text-blue-900">{e.title}</div>
+                          <div className="text-[11px] text-slate-500 line-clamp-1">{e.venue} &bull; {e.event_type}</div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-900 transition" />
                       </div>
                     ))}
                   </div>
@@ -129,102 +129,49 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               {/* Projects */}
               {results.projects?.length > 0 && (
                 <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    Projects ({results.projects.length})
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-blue-900" />
+                    Student Innovation Projects ({results.projects.length})
                   </div>
                   <div className="space-y-1">
                     {results.projects.map((p: any) => (
                       <div
                         key={p.id}
                         onClick={() => {
-                          onNavigate('projects', p.id);
+                          onNavigate('projects');
                           onClose();
                         }}
-                        className="p-2 rounded-lg hover:bg-slate-800 cursor-pointer flex items-center justify-between transition group"
+                        className="p-2.5 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-between transition group border border-transparent hover:border-slate-200"
                       >
                         <div>
-                          <div className="text-xs font-semibold text-white group-hover:text-emerald-400">{p.title}</div>
-                          <div className="text-[11px] text-slate-400">{p.domain} &bull; {p.technologies}</div>
+                          <div className="text-xs font-bold text-slate-900 group-hover:text-blue-900">{p.title}</div>
+                          <div className="text-[11px] text-slate-500 line-clamp-1">{p.domain} &bull; {p.creator_name}</div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-900 transition" />
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Resources */}
-              {results.resources?.length > 0 && (
-                <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                    Learning Resources ({results.resources.length})
-                  </div>
-                  <div className="space-y-1">
-                    {results.resources.map((r: any) => (
-                      <div
-                        key={r.id}
-                        onClick={() => {
-                          onNavigate('learning');
-                          onClose();
-                        }}
-                        className="p-2 rounded-lg hover:bg-slate-800 cursor-pointer flex items-center justify-between transition group"
-                      >
-                        <div>
-                          <div className="text-xs font-semibold text-white group-hover:text-amber-400">{r.title}</div>
-                          <div className="text-[11px] text-slate-400">{r.type} &bull; {r.domain} &bull; {r.difficulty}</div>
-                        </div>
-                        <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400 transition" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Tools */}
-              {results.tools?.length > 0 && (
-                <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <Wrench className="w-3.5 h-3.5 text-cyan-400" />
-                    Software Tools ({results.tools.length})
-                  </div>
-                  <div className="space-y-1">
-                    {results.tools.map((t: any) => (
-                      <a
-                        key={t.id}
-                        href={t.official_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-2 rounded-lg hover:bg-slate-800 cursor-pointer flex items-center justify-between transition group"
-                      >
-                        <div>
-                          <div className="text-xs font-semibold text-white group-hover:text-cyan-400">{t.name}</div>
-                          <div className="text-[11px] text-slate-400">{t.category} &bull; {t.purpose}</div>
-                        </div>
-                        <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* No results */}
-              {results.clubs?.length === 0 &&
-               results.events?.length === 0 &&
-               results.projects?.length === 0 &&
-               results.resources?.length === 0 &&
-               results.tools?.length === 0 && (
-                <div className="text-center py-8 text-xs text-slate-500">
-                  No matching items found in the database for "{query}".
+              {/* Empty state */}
+              {results.clubs?.length === 0 && results.events?.length === 0 && results.projects?.length === 0 && (
+                <div className="py-8 text-center text-xs text-slate-500">
+                  No matching institutional records found for &ldquo;{query}&rdquo;.
                 </div>
               )}
             </>
           )}
 
           {!query && (
-            <div className="text-center py-8 text-xs text-slate-500">
-              Type keywords like "Python", "Rust", "Hackathon", "Robotics", or "ACM" to search real database records.
+            <div className="py-6 text-center text-xs text-slate-400 space-y-2">
+              <p>Type keywords to search across Pragati University clubs, scheduled events, syllabus roadmaps, and approved projects.</p>
+              <div className="flex flex-wrap justify-center gap-1.5 pt-2">
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">AI &amp; ML</span>
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">Robotics</span>
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">Workshop</span>
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">Hackathon</span>
+              </div>
             </div>
           )}
         </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, QrCode, FileText, Lock, Globe } from 'lucide-react';
+import { ShieldCheck, QrCode, FileText, Lock, Globe, ExternalLink } from 'lucide-react';
 
 interface FooterProps {
   onNavigate: (tab: string) => void;
@@ -7,102 +7,111 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
-    <footer className="bg-slate-950 border-t border-slate-800 text-slate-400 text-xs py-10 mt-auto">
+    <footer className="bg-[#0b1f33] border-t border-[#061220] text-slate-300 text-xs py-10 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="space-y-3 md:col-span-2">
           <div className="flex items-center gap-2.5 text-white font-bold text-sm">
-            <div className="h-7 px-2 py-0.5 bg-white rounded-md border border-slate-700 flex items-center justify-center">
+            <div className="h-8 px-2 py-0.5 bg-white rounded-md border border-slate-200 flex items-center justify-center shadow-xs">
               <img
                 src="/assets/institutions/pragati-engineering-college/logo.png"
-                alt="Pragati Engineering College (PEC)"
-                className="h-5 w-auto object-contain"
+                alt="Pragati University"
+                className="h-6 w-auto object-contain"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
               />
             </div>
-            <span>Pragati Engineering College (Autonomous)</span>
+            <span>Pragati University</span>
           </div>
-          <p className="text-slate-400 text-xs leading-relaxed max-w-md">
-            Approved by AICTE, Permanently Affiliated to JNTUK, Accredited by NAAC with &lsquo;A&rsquo; Grade and NBA.
-            Official portal for student clubs, technical societies, departmental chapters, hackathons, and certified achievements.
+          <p className="text-slate-300 text-xs leading-relaxed max-w-md">
+            Pragati University Student Club Management Platform. Centralized governance for accredited student clubs, technical societies, departmental chapters, hackathons, and certified achievements.
           </p>
-          <div className="text-[11px] text-slate-400 space-y-0.5">
-            <div>ADB Road, Surampalem, Near Peddapuram, Kakinada District, A.P. &ndash; 533437</div>
+          <div className="text-[11px] text-slate-400 space-y-0.5 font-normal">
+            <div>Office of Student Life &amp; Club Management &bull; Pragati University Campus</div>
             <div>Institutional Governance &bull; Student Affairs &amp; Technical Chapters</div>
           </div>
         </div>
 
         <div>
-          <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-3">Verification &amp; Portals</h4>
+          <h4 className="text-white font-bold text-xs tracking-wider uppercase mb-3">Verification &amp; Portals</h4>
           <ul className="space-y-2 text-xs">
             <li>
               <button
-                onClick={() => onNavigate('verify-membership')}
-                className="hover:text-blue-400 transition flex items-center gap-1.5"
+                onClick={() => onNavigate('verify')}
+                className="hover:text-white transition flex items-center gap-1.5 text-slate-300"
               >
-                <QrCode className="w-3.5 h-3.5 text-blue-400" />
+                <QrCode className="w-3.5 h-3.5 text-slate-400" />
                 Verify Membership Pass
               </button>
             </li>
             <li>
               <button
-                onClick={() => onNavigate('verify-certificate')}
-                className="hover:text-blue-400 transition flex items-center gap-1.5"
+                onClick={() => onNavigate('verify')}
+                className="hover:text-white transition flex items-center gap-1.5 text-slate-300"
               >
-                <FileText className="w-3.5 h-3.5 text-amber-400" />
+                <FileText className="w-3.5 h-3.5 text-slate-400" />
                 Verify Certificate Record
               </button>
             </li>
             <li>
               <button
                 onClick={() => onNavigate('roadmaps')}
-                className="hover:text-blue-400 transition"
+                className="hover:text-white transition text-slate-300"
               >
-                Academic Roadmaps
+                Academic Skill Roadmaps
               </button>
             </li>
             <li>
               <button
-                onClick={() => onNavigate('student-portal')}
-                className="hover:text-blue-400 transition"
+                onClick={() => onNavigate('certificates')}
+                className="hover:text-white transition text-slate-300"
               >
-                Student Hub &amp; Passes
+                Certificates &amp; Credentials
               </button>
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="text-white font-semibold text-xs tracking-wider uppercase mb-3">Institutional Links</h4>
+          <h4 className="text-white font-bold text-xs tracking-wider uppercase mb-3">Institutional Links</h4>
           <ul className="space-y-2 text-xs">
             <li>
-              <button onClick={() => onNavigate('clubs')} className="hover:text-blue-400 transition">
-                Accredited Clubs Directory
+              <button onClick={() => onNavigate('clubs')} className="hover:text-white transition text-slate-300">
+                Accredited Chapters Directory (35 Clubs)
               </button>
             </li>
             <li>
-              <button onClick={() => onNavigate('events')} className="hover:text-blue-400 transition">
+              <button onClick={() => onNavigate('events')} className="hover:text-white transition text-slate-300">
                 Scheduled Events &amp; Workshops
               </button>
             </li>
             <li>
-              <button onClick={() => onNavigate('projects')} className="hover:text-blue-400 transition">
+              <button onClick={() => onNavigate('projects')} className="hover:text-white transition text-slate-300">
                 Student Projects Repository
               </button>
             </li>
             <li>
-              <button onClick={() => onNavigate('announcements')} className="hover:text-blue-400 transition">
-                Official Notices &amp; Circulars
-              </button>
+              <a
+                href="https://pragati.ac.in/"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-white transition text-slate-300 flex items-center gap-1"
+              >
+                Official University Website <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[11px]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-slate-400 text-[11px]">
         <div>
-          &copy; {new Date().getFullYear()} Pragati Engineering College (Autonomous). All Rights Reserved.
+          &copy; {new Date().getFullYear()} Pragati University. All Rights Reserved.
         </div>
-        <div className="mt-2 sm:mt-0">
-          Faculty-Supervised Student Activities Management System
+        <div className="flex items-center gap-4 mt-3 sm:mt-0">
+          <span>Student Club Management Platform</span>
+          <span>&bull;</span>
+          <span className="text-slate-300 font-mono">v2.6.4</span>
         </div>
       </div>
     </footer>

@@ -9,7 +9,8 @@ import {
   ArrowLeft,
   Circle,
   Clock,
-  Layers
+  Layers,
+  Building2
 } from 'lucide-react';
 import { api } from '../services/api';
 import { Roadmap, SkillBadge } from '../types';
@@ -76,227 +77,140 @@ export const RoadmapsPage: React.FC<RoadmapsPageProps> = ({ onNavigate, onOpenAu
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in bg-slate-50 min-h-screen text-slate-900">
       {/* Header */}
       <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-950/60 border border-blue-800 text-blue-300 text-xs font-semibold mb-2">
-          <Map className="w-3.5 h-3.5" /> Structured Engineering Pathways
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-950 text-xs font-semibold mb-2">
+          <Building2 className="w-3.5 h-3.5 text-blue-900" /> Structured Engineering Pathways &bull; PEC
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-          Learning Roadmaps & Skill Milestones
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Learning Roadmaps &amp; Skill Milestones
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400">
+        <p className="text-xs sm:text-sm text-slate-600 font-normal">
           Guided engineering tracks curated by technical society domain leads. Complete modules to earn accredited skill badges.
         </p>
       </div>
 
       {/* Badge Notice Alert */}
       {badgeNotice && (
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/80 via-indigo-950/80 to-slate-900 border border-amber-500/40 text-amber-300 text-xs flex items-center justify-between animate-in zoom-in-95">
-          <div className="flex items-center gap-2 font-semibold">
-            <Award className="w-5 h-5 text-amber-400" />
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between animate-in zoom-in-95">
+          <div className="flex items-center gap-2 font-bold">
+            <Award className="w-5 h-5 text-amber-600" />
             <span>{badgeNotice}</span>
           </div>
-          <button onClick={() => setBadgeNotice(null)} className="text-slate-400 hover:text-white">✕</button>
+          <button onClick={() => setBadgeNotice(null)} className="text-slate-500 hover:text-slate-800 font-bold">✕</button>
         </div>
       )}
 
-      {/* Earned Badges Showcase (if any) */}
-      {badges.length > 0 && (
-        <div className="p-6 rounded-3xl bg-slate-900/80 border border-amber-500/30">
-          <div className="flex items-center gap-2 mb-4">
-            <Award className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-300">
-              Your Unlocked Skill Credentials ({badges.length})
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {badges.map(b => (
-              <div key={b.id} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold shrink-0">
-                  <Award className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-white">{b.title}</div>
-                  <div className="text-[11px] text-slate-400 line-clamp-1">{b.description}</div>
-                  <div className="text-[9px] text-emerald-400 mt-1 font-mono">Issued {new Date(b.issued_at).toLocaleDateString()}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Main Content: Roadmaps list or Selected Roadmap Detail */}
+      {/* Detailed View Modal / Overlay */}
       {selectedRoadmap ? (
-        /* Selected Roadmap Modules View */
-        <div className="space-y-6">
+        <div className="space-y-6 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
           <button
             onClick={() => setSelectedRoadmap(null)}
-            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition"
+            className="text-xs text-slate-600 hover:text-blue-900 font-bold flex items-center gap-1.5 transition"
           >
             <ArrowLeft className="w-4 h-4" /> Back to All Roadmaps
           </button>
 
-          <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 shadow-xl space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-950 text-blue-300 border border-blue-500/40">
-                    {selectedRoadmap.level}
-                  </span>
-                  <span className="text-xs text-slate-400">{selectedRoadmap.domain}</span>
-                </div>
-                <h2 className="text-2xl font-bold text-white">{selectedRoadmap.title}</h2>
-                <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                  {selectedRoadmap.description}
-                </p>
-              </div>
-
-              {/* Progress Circle & Counter */}
-              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 shrink-0 text-center min-w-[140px]">
-                <div className="text-2xl font-bold text-emerald-400 font-mono">
-                  {selectedRoadmap.progress_percentage}%
-                </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
-                  {selectedRoadmap.completed_modules} of {selectedRoadmap.total_modules} completed
-                </div>
-              </div>
-            </div>
-
-            {/* Prerequisites */}
-            {selectedRoadmap.prerequisites && (
-              <div className="text-xs text-slate-400 pt-2 border-t border-slate-800">
-                <strong>Prerequisites:</strong> {selectedRoadmap.prerequisites}
-              </div>
-            )}
+          <div className="space-y-2">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-900 border border-blue-200">
+              {selectedRoadmap.domain}
+            </span>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">{selectedRoadmap.title}</h2>
+            <p className="text-xs sm:text-sm text-slate-600 font-normal">{selectedRoadmap.description}</p>
           </div>
 
           {/* Modules List */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Curriculum Modules & Milestones
-            </h3>
-
-            {selectedRoadmap.modules?.map((m, idx) => (
-              <div
-                key={m.id}
-                className={`p-5 rounded-2xl border transition flex items-start justify-between gap-4 ${
-                  m.isCompleted
-                    ? 'bg-slate-900/60 border-emerald-500/40 text-slate-200'
-                    : 'bg-slate-900 border-slate-800 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-start gap-3.5">
-                  <button
-                    onClick={() => handleToggleModule(selectedRoadmap.id, m.id)}
-                    className={`mt-0.5 p-1 rounded-lg transition shrink-0 ${
-                      m.isCompleted
-                        ? 'text-emerald-400 hover:text-emerald-300'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    {m.isCompleted ? (
-                      <CheckCircle2 className="w-5 h-5 fill-emerald-500/20" />
-                    ) : (
-                      <Circle className="w-5 h-5" />
-                    )}
-                  </button>
-
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-slate-500">#{idx + 1}</span>
-                      <h4 className={`text-sm font-bold ${m.isCompleted ? 'text-emerald-300 line-through' : 'text-white'}`}>
-                        {m.title}
-                      </h4>
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      {m.description}
-                    </p>
-
-                    {m.resources && m.resources.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {m.resources.map((res: string, i: number) => (
-                          <span key={i} className="px-2 py-0.5 rounded bg-slate-950 text-slate-400 text-[10px] font-mono border border-slate-800">
-                            {res}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleToggleModule(selectedRoadmap.id, m.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition ${
-                    m.isCompleted
-                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
-                      : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Curriculum Modules</h3>
+            <div className="space-y-2.5">
+              {selectedRoadmap.modules?.map((m, idx) => (
+                <div
+                  key={m.id}
+                  className={`p-4 rounded-xl border flex items-center justify-between transition ${
+                    m.completed
+                      ? 'bg-emerald-50/60 border-emerald-200 text-slate-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-700'
                   }`}
                 >
-                  {m.isCompleted ? 'Completed' : 'Mark Done'}
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-start gap-3">
+                    <button
+                      onClick={() => handleToggleModule(selectedRoadmap.id, m.id)}
+                      className="mt-0.5 text-slate-400 hover:text-blue-900 transition"
+                    >
+                      {m.completed ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 fill-emerald-100" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-slate-400" />
+                      )}
+                    </button>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">
+                        Module {idx + 1}: {m.title}
+                      </div>
+                      <p className="text-[11px] text-slate-600 mt-0.5">{m.description}</p>
+                      {m.resources && m.resources.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {m.resources.map((r, i) => (
+                            <a
+                              key={i}
+                              href={r.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[10px] font-bold text-blue-900 hover:underline inline-flex items-center gap-1"
+                            >
+                              <BookOpen className="w-3 h-3" /> {r.name}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <span className="text-[10px] text-slate-500 font-mono shrink-0 ml-3">
+                    {m.estimated_hours} hrs
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ) : (
-        /* Roadmaps Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {roadmaps.map(rm => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {roadmaps.map(roadmap => (
             <div
-              key={rm.id}
-              onClick={() => handleSelectRoadmap(rm.id)}
-              className="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-900/90 transition cursor-pointer flex flex-col justify-between group shadow-sm"
+              key={roadmap.id}
+              className="p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-900 transition flex flex-col justify-between group shadow-xs"
             >
               <div>
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-950 text-blue-300 border border-blue-500/40">
-                    {rm.level}
+                <div className="flex items-start justify-between gap-2 mb-2.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-900 border border-blue-200">
+                    {roadmap.domain}
                   </span>
-                  <span className="text-xs text-slate-400 font-mono">
-                    {rm.total_modules} Modules
+                  <span className="text-[10px] font-mono text-slate-500">
+                    {roadmap.total_modules || 4} Modules
                   </span>
                 </div>
 
-                <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition mb-1">
-                  {rm.title}
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition mb-1">
+                  {roadmap.title}
                 </h3>
-                <div className="text-xs text-slate-400 mb-3 font-medium">
-                  Track: <span className="text-slate-300">{rm.domain}</span>
-                </div>
-
-                <p className="text-xs text-slate-300 line-clamp-2 mb-4 leading-relaxed">
-                  {rm.description}
+                <p className="text-xs text-slate-600 line-clamp-3 mb-4 leading-relaxed font-normal">
+                  {roadmap.description}
                 </p>
               </div>
 
-              <div>
-                {/* Progress Bar */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between text-[11px] mb-1">
-                    <span className="text-slate-400">Milestone Progress</span>
-                    <span className="font-mono text-emerald-400 font-bold">
-                      {rm.progress_percentage}% ({rm.completed_modules}/{rm.total_modules})
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                    <div
-                      className="h-full bg-emerald-500 rounded-full transition-all"
-                      style={{ width: `${rm.progress_percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <Award className="w-3.5 h-3.5 text-amber-400" /> Unlocks Specialist Badge
-                  </span>
-                  <span className="text-blue-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">
-                    Open Track &rarr;
-                  </span>
-                </div>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-slate-500 text-[11px] font-mono">
+                  {roadmap.estimated_weeks || 6} Weeks
+                </span>
+                <button
+                  onClick={() => handleSelectRoadmap(roadmap.id)}
+                  className="px-3 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white font-bold flex items-center gap-1 shadow-xs"
+                >
+                  <span>Open Roadmap</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           ))}

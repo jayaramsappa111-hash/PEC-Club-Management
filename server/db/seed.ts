@@ -6,7 +6,7 @@ import { migratePECClubs } from './pec_migration';
 export async function seedDatabase() {
   initSchema();
 
-  // Guarantee Pragati Engineering College official data is present and migrated
+  // Guarantee Pragati University official data is present and migrated
   await migratePECClubs();
 
   // Check if already seeded

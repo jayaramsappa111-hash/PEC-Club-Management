@@ -68,38 +68,55 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// Login
+// Login with Email or Roll / Staff ID
 router.post('/login', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' });
+    const { email, identifier, password } = req.body;
+    const loginId = (email || identifier || '').trim().toLowerCase();
+
+    if (!loginId || !password) {
+      res.status(400).json({ error: 'Institutional Email/Roll Number and Password are required' });
       return;
     }
 
-    const user = queryOne<{ id: string; email: string; password_hash: string; is_active: number }>(
-      'SELECT id, email, password_hash, is_active FROM users WHERE email = ?',
-      [email.toLowerCase()]
+    // Lookup user by email OR by profiles.student_id (Roll Number / Staff ID)
+    let user = queryOne<{ id: string; email: string; password_hash: string; is_active: number }>(
+      'SELECT id, email, password_hash, is_active FROM users WHERE LOWER(email) = ?',
+      [loginId]
     );
 
     if (!user) {
-      res.status(401).json({ error: 'Invalid email or password' });
+      // Try matching profile student_id / staff ID
+      const userFromProfile = queryOne<{ user_id: string }>(
+        'SELECT user_id FROM profiles WHERE LOWER(student_id) = ?',
+        [loginId]
+      );
+      if (userFromProfile) {
+        user = queryOne<{ id: string; email: string; password_hash: string; is_active: number }>(
+          'SELECT id, email, password_hash, is_active FROM users WHERE id = ?',
+          [userFromProfile.user_id]
+        );
+      }
+    }
+
+    if (!user) {
+      res.status(401).json({ error: 'Invalid institutional credentials. Please check your email/roll number and password.' });
       return;
     }
 
     if (!user.is_active) {
-      res.status(403).json({ error: 'Account is deactivated. Please contact an administrator.' });
+      res.status(403).json({ error: 'Account is deactivated. Please contact the Pragati University IT Administrator.' });
       return;
     }
 
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
-      res.status(401).json({ error: 'Invalid email or password' });
+      res.status(401).json({ error: 'Invalid password. Please check your credentials.' });
       return;
     }
 
-    const profile = queryOne<{ name: string; department_id: string }>(
-      'SELECT name, department_id FROM profiles WHERE user_id = ?',
+    const profile = queryOne<{ name: string; student_id: string; department_id: string; course: string }>(
+      'SELECT name, student_id, department_id, course FROM profiles WHERE user_id = ?',
       [user.id]
     );
 
@@ -128,9 +145,11 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         email: user.email,
         name: profile?.name || user.email.split('@')[0],
+        student_id: profile?.student_id,
         roles,
         permissions,
-        department_id: profile?.department_id
+        department_id: profile?.department_id,
+        course: profile?.course
       }
     });
   } catch (err: any) {

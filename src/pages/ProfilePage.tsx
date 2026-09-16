@@ -9,7 +9,10 @@ import {
   QrCode,
   CheckCircle,
   ExternalLink,
-  BookOpen
+  BookOpen,
+  Building2,
+  GraduationCap,
+  Clock
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -65,14 +68,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
 
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-xl font-bold text-white">Student Authentication Required</h2>
-        <p className="text-xs text-slate-400">Please sign in to access your digital membership passes, event tickets, and certified credentials.</p>
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-4 bg-slate-50 min-h-screen">
+        <h2 className="text-xl font-bold text-slate-900">Student / Faculty Authentication Required</h2>
+        <p className="text-xs text-slate-600">Please sign in to access your digital membership passes, event tickets, and certified credentials.</p>
         <button
           onClick={onOpenAuth}
-          className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/30 transition"
+          className="px-6 py-2.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold shadow-xs transition"
         >
-          Open Sign In
+          Open Institutional Sign In
         </button>
       </div>
     );
@@ -80,33 +83,33 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-xs text-slate-400">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-xs text-slate-500 bg-slate-50 min-h-screen">
         Loading personal credential ledger...
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in bg-slate-50 min-h-screen text-slate-900">
       {/* Identity Banner */}
-      <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/40 border border-slate-800 shadow-xl">
+      <div className="p-6 md:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-20 h-20 rounded-2xl bg-blue-600/30 border border-blue-500/40 text-blue-300 flex items-center justify-center font-bold text-3xl shadow-lg">
+            <div className="w-16 h-16 rounded-xl bg-blue-900 text-white flex items-center justify-center font-bold text-2xl shadow-xs font-mono">
               {user.name.slice(0, 2).toUpperCase()}
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-extrabold text-white tracking-tight">{user.name}</h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-950 text-blue-300 border border-blue-500/40">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">{user.name}</h1>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-900 border border-blue-200">
                   {user.roles.join(', ')}
                 </span>
               </div>
-              <div className="text-xs text-slate-400">
-                {user.email} &bull; <strong className="text-slate-300 font-mono">{user.student_id || '23BCE1001'}</strong>
+              <div className="text-xs text-slate-600">
+                {user.email} &bull; <strong className="text-slate-900 font-mono">{user.student_id || user.roll_number || '23A31A0501'}</strong>
               </div>
-              <div className="text-xs text-slate-400">
-                {user.course || 'B.Tech Computer Science and Engineering'} &bull; Cycle 2025-2026
+              <div className="text-xs text-slate-500">
+                {user.department || user.course || 'B.Tech Computer Science and Engineering'} &bull; Pragati University
               </div>
             </div>
           </div>
@@ -114,31 +117,31 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
           <div className="flex items-center gap-3">
             <button
               onClick={() => onNavigate('verify')}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition flex items-center gap-2"
+              className="px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold border border-slate-300 transition flex items-center gap-2"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-emerald-700" />
               Public Verification
             </button>
           </div>
         </div>
 
         {/* Quick KPI count */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-800 text-xs">
-          <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <div className="text-slate-400 text-[10px] uppercase font-semibold">Affiliated Clubs</div>
-            <div className="text-xl font-bold text-blue-400 font-mono mt-0.5">{memberships.length}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-100 text-xs">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Affiliated Chapters</div>
+            <div className="text-2xl font-extrabold text-blue-900 font-mono mt-0.5">{memberships.length}</div>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <div className="text-slate-400 text-[10px] uppercase font-semibold">Event Registrations</div>
-            <div className="text-xl font-bold text-indigo-400 font-mono mt-0.5">{registrations.length}</div>
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Event Registrations</div>
+            <div className="text-2xl font-extrabold text-blue-900 font-mono mt-0.5">{registrations.length}</div>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <div className="text-slate-400 text-[10px] uppercase font-semibold">Accredited Certs</div>
-            <div className="text-xl font-bold text-amber-400 font-mono mt-0.5">{certificates.length}</div>
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Accredited Certs</div>
+            <div className="text-2xl font-extrabold text-amber-700 font-mono mt-0.5">{certificates.length}</div>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <div className="text-slate-400 text-[10px] uppercase font-semibold">Specialist Badges</div>
-            <div className="text-xl font-bold text-emerald-400 font-mono mt-0.5">{badges.length}</div>
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Specialist Badges</div>
+            <div className="text-2xl font-extrabold text-emerald-700 font-mono mt-0.5">{badges.length}</div>
           </div>
         </div>
       </div>
@@ -147,18 +150,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Layers className="w-4 h-4 text-blue-400" /> Digital Membership Passes & QR ID
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-blue-900" /> Digital Membership Passes &amp; QR ID
             </h3>
-            <p className="text-xs text-slate-400">Institutional smart ID passes for club activities and voting</p>
+            <p className="text-xs text-slate-500">Institutional smart ID passes for club activities and chapter voting</p>
           </div>
         </div>
 
         {memberships.length === 0 ? (
-          <div className="p-8 text-center bg-slate-900 rounded-3xl border border-slate-800 text-xs text-slate-400">
+          <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-xs text-slate-500">
             You are not currently enrolled in any technical club chapters.{' '}
-            <button onClick={() => onNavigate('clubs')} className="text-blue-400 underline font-semibold">
-              Browse Clubs Directory
+            <button onClick={() => onNavigate('clubs')} className="text-blue-900 underline font-bold">
+              Browse 35 Accredited Chapters
             </button>
           </div>
         ) : (
@@ -166,33 +169,33 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
             {memberships.map(card => (
               <div
                 key={card.id}
-                className="p-5 rounded-3xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 transition flex flex-col justify-between group shadow-sm"
+                className="p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-900 transition flex flex-col justify-between group shadow-xs"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
                       {card.status}
                     </span>
-                    <span className="font-mono text-xs text-blue-400 font-semibold">
+                    <span className="font-mono text-xs text-blue-900 font-bold">
                       {card.membership_id}
                     </span>
                   </div>
 
-                  <h4 className="text-sm font-bold text-white mb-1 group-hover:text-blue-400 transition">
+                  <h4 className="text-sm font-bold text-slate-900 mb-1 group-hover:text-blue-900 transition">
                     {card.club_name}
                   </h4>
-                  <div className="text-xs text-slate-400 mb-3">
+                  <div className="text-xs text-slate-500 mb-3">
                     Joined: {new Date(card.joined_at).toLocaleDateString()}
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-slate-500 font-mono">Academic Pass</span>
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-[11px] text-slate-400 font-mono">PEC Academic Pass</span>
                   <button
                     onClick={() => setSelectedCard(card)}
-                    className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold flex items-center gap-1.5 shadow-sm"
+                    className="px-3 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white font-bold flex items-center gap-1.5 shadow-xs"
                   >
-                    <QrCode className="w-3.5 h-3.5" /> View Digital Card
+                    <QrCode className="w-3.5 h-3.5" /> View Digital Pass
                   </button>
                 </div>
               </div>
@@ -205,107 +208,53 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-indigo-400" /> Event Access Passes & Check-Ins
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-blue-900" /> Event Access Passes &amp; Check-Ins
             </h3>
-            <p className="text-xs text-slate-400">QR entry passes for upcoming campus workshops and competitions</p>
+            <p className="text-xs text-slate-500">QR entry passes for upcoming campus workshops and competitions</p>
           </div>
         </div>
 
         {registrations.length === 0 ? (
-          <div className="p-8 text-center bg-slate-900 rounded-3xl border border-slate-800 text-xs text-slate-400">
+          <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-xs text-slate-500">
             No active event registrations found.{' '}
-            <button onClick={() => onNavigate('events')} className="text-indigo-400 underline font-semibold">
+            <button onClick={() => onNavigate('events')} className="text-blue-900 underline font-bold">
               Explore Upcoming Events
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {registrations.map(reg => (
               <div
                 key={reg.id}
-                onClick={() => onNavigate('event-detail', reg.event_id)}
-                className="p-5 rounded-3xl bg-slate-900 border border-slate-800 hover:border-indigo-500/40 transition cursor-pointer flex flex-col justify-between group shadow-sm"
+                className="p-5 rounded-xl bg-white border border-slate-200 flex flex-col justify-between shadow-xs"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-indigo-950 text-indigo-300 border border-indigo-500/40">
-                      PASS CONFIRMED
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-900 border border-blue-200">
+                      {reg.event_type || 'WORKSHOP'}
                     </span>
-                    <span className="text-xs font-mono text-slate-400">
-                      Token: {reg.qr_code_token.slice(0, 16)}...
-                    </span>
-                  </div>
-
-                  <h4 className="text-sm font-bold text-white group-hover:text-indigo-400 transition mb-1">
-                    {reg.event_title}
-                  </h4>
-                  <p className="text-xs text-slate-400 mb-3">
-                    Venue: {reg.venue} &bull; {new Date(reg.start_datetime).toLocaleString()}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-emerald-400 flex items-center gap-1 font-semibold">
-                    <CheckCircle className="w-3.5 h-3.5" /> Validated QR Entry Pass
-                  </span>
-                  <span className="text-indigo-400 font-semibold group-hover:underline">
-                    View Pass &rarr;
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* SECTION 3: Certificates */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Award className="w-4 h-4 text-amber-400" /> Earned Certificates
-            </h3>
-            <p className="text-xs text-slate-400">Faculty-minted credentials with tamper-proof validation hashes</p>
-          </div>
-        </div>
-
-        {certificates.length === 0 ? (
-          <div className="p-8 text-center bg-slate-900 rounded-3xl border border-slate-800 text-xs text-slate-400">
-            No certificates minted yet. Complete workshops and hackathons to receive accredited credentials.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {certificates.map(cert => (
-              <div
-                key={cert.id}
-                className="p-5 rounded-3xl bg-slate-900 border border-slate-800 hover:border-amber-500/40 transition flex flex-col justify-between group shadow-sm"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-950 text-amber-300 border border-amber-500/40">
-                      {cert.type}
-                    </span>
-                    <span className="text-xs font-mono text-slate-400">
-                      {cert.certificate_number}
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                      {reg.status}
                     </span>
                   </div>
 
-                  <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition mb-1">
-                    {cert.title}
-                  </h4>
-                  <div className="text-xs text-slate-400 mb-3">
-                    Issued: {new Date(cert.issue_date).toLocaleDateString()}
+                  <h4 className="text-sm font-bold text-slate-900 mb-1">{reg.event_title}</h4>
+                  <div className="text-xs text-slate-500 mb-3">Host: {reg.club_name}</div>
+
+                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1 mb-3">
+                    <div className="text-slate-500 text-[10px] font-bold uppercase">QR Entry Token</div>
+                    <div className="font-mono text-slate-900 font-bold text-xs">{reg.qr_code_token || 'VALID-PASS'}</div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-emerald-400 font-mono text-[11px]">Validated</span>
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 text-[11px]">{new Date(reg.registered_at).toLocaleDateString()}</span>
                   <button
-                    onClick={() => setSelectedCert(cert)}
-                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold flex items-center gap-1.5 shadow-sm"
+                    onClick={() => onNavigate('event-detail', reg.event_id)}
+                    className="text-xs font-bold text-blue-900 hover:underline"
                   >
-                    <FileCheck className="w-3.5 h-3.5" /> View Certificate
+                    Event Page &rarr;
                   </button>
                 </div>
               </div>
@@ -327,7 +276,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
         <CertificateModal
           certificate={selectedCert}
           onClose={() => setSelectedCert(null)}
-          onNavigateToVerify={(cNum) => onNavigate('verify', cNum)}
+          onNavigateToVerify={(code) => onNavigate('verify', code)}
         />
       )}
     </div>
