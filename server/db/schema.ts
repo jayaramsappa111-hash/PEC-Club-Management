@@ -481,6 +481,7 @@ export function initSchema() {
       ['institution_id', "TEXT DEFAULT 'pec'"],
       ['institution_logo_url', "TEXT DEFAULT '/assets/institutions/pragati-engineering-college/logo.png'"],
       ['logo_url', 'TEXT'],
+      ['banner_url', 'TEXT'],
       ['category', 'TEXT'],
       ['department', 'TEXT'],
       ['faculty_coordinator', 'TEXT'],

@@ -16,6 +16,8 @@ export interface PECClubSeed {
   description: string;
   domains: string;
   objectives: string;
+  logo_url?: string;
+  banner_url?: string;
 }
 
 export const PEC_DEPARTMENTS: PECDepartmentSeed[] = [
@@ -102,6 +104,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A student club focused on sustainable construction, energy-efficient buildings, environmentally responsible design, green materials, and innovative approaches to creating healthier and more sustainable built environments.',
     domains: 'Sustainable Construction, Green Building, Energy Efficiency, Eco Materials',
     objectives: 'Promote LEED and IGBC green building standards, sustainable architectural workflows, and energy simulation tools among civil engineering scholars.',
+    logo_url: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'gaming-club',
@@ -114,6 +118,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A student community focused on gaming, game development, competitive gaming, game technology, interactive experiences, and collaborative activities that encourage creativity, technical skills, and strategic thinking.',
     domains: 'Game Development, Esports, Game Engines, Interactive Media',
     objectives: 'Fosters real-time rendering skills, game loop physics architecture, Unreal/Unity engines, and tactical collegiate esports competitions.',
+    logo_url: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'robotics-club',
@@ -126,6 +132,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A technical club focused on robotics, automation, mechanical systems, embedded technologies, robotic design, prototyping, and hands-on engineering projects.',
     domains: 'Robotics, Automation, Embedded Systems, Mechatronics',
     objectives: 'Design autonomous wheeled platforms, robotic manipulators, ROS2 kinematic pipelines, and industrial automation prototypes.',
+    logo_url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'ar-vr-club',
@@ -138,6 +146,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A technology-focused club exploring augmented reality, virtual reality, immersive interfaces, 3D experiences, spatial computing, and practical applications of immersive technologies.',
     domains: 'Augmented Reality, Virtual Reality, Unity 3D, Spatial Computing',
     objectives: 'Build immersive WebXR scenes, headset spatial applications, marker-based AR tracking, and virtual simulation environments.',
+    logo_url: 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'additive-manufacturing-club',
@@ -150,6 +160,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A technical club focused on additive manufacturing and 3D printing technologies, covering digital design, prototyping, manufacturing processes, materials, and innovative engineering applications.',
     domains: '3D Printing, Rapid Prototyping, CAD/CAM, Digital Fabrication',
     objectives: 'Provide hands-on FDM and SLA 3D printing training, slicer optimization, generative design CAD, and functional mechanical prototyping.',
+    logo_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'cyber-security-club',
@@ -162,6 +174,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A cybersecurity-focused community exploring information security, ethical security practices, network security, application security, digital forensics, privacy, and practical security awareness.',
     domains: 'Ethical Hacking, Network Security, Cryptography, Threat Defense',
     objectives: 'Organize collegiate capture-the-flag competitions, digital forensic workshops, secure code audits, and cyber hygiene drives.',
+    logo_url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'cloud-computing-club',
@@ -174,6 +188,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A technical club focused on cloud computing concepts, cloud platforms, distributed systems, deployment technologies, scalable applications, and practical cloud-based projects.',
     domains: 'Cloud Architecture, AWS/GCP/Azure, DevOps, Microservices',
     objectives: 'Master containerized deployments, Kubernetes orchestration, serverless microservices, and multi-cloud architectural patterns.',
+    logo_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'aiml-turing-club',
@@ -186,6 +202,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A technical community focused on artificial intelligence and machine learning, including data-driven problem solving, model development, experimentation, responsible AI, and practical applications of intelligent systems.',
     domains: 'Machine Learning, Deep Learning, Computer Vision, Natural Language Processing',
     objectives: 'Develop deep learning pipelines, transformer model fine-tuning, computer vision classification, and applied generative AI solutions.',
+    logo_url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'iot-club',
@@ -198,6 +216,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A technology club exploring connected devices, sensors, embedded systems, communication technologies, automation, and Internet of Things applications through practical projects and experimentation.',
     domains: 'Internet of Things, Embedded C, Sensor Networks, Edge Computing',
     objectives: 'Engineer ESP32 and ARM Cortex sensor nodes, MQTT telemetry pipelines, industrial sensor interfacing, and edge computing gateways.',
+    logo_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'electric-vehicle-club',
@@ -210,6 +230,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A technical club focused on electric mobility, electric vehicle systems, battery technologies, motor drives, charging systems, vehicle electronics, and sustainable transportation technologies.',
     domains: 'EV Powertrains, Battery Management, Power Electronics, Sustainable Mobility',
     objectives: 'Analyze regenerative braking dynamics, lithium-ion battery management systems (BMS), motor controller topologies, and charging stations.',
+    logo_url: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1558441719-670b357029b7?w=1200&auto=format&fit=crop&q=80',
   },
   {
     id: 'data-analytics-club',
@@ -222,6 +244,8 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A data-focused club exploring data analysis, visualization, statistical thinking, data-driven decision making, machine learning applications, and practical analytical projects.',
     domains: 'Data Analytics, BI Dashboards, Big Data, Statistical Modeling',
     objectives: 'Equip students with exploratory data analysis techniques, Power BI dashboards, statistical hypothesis testing, and big data handling.',
+    logo_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&auto=format&fit=crop&q=80',
+    banner_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80',
   },
 
   // ==========================================
@@ -518,5 +542,77 @@ export const PEC_CLUBS: PECClubSeed[] = [
     description: 'A professional engineering community associated with electrical and electronics engineering, supporting technical learning, professional awareness, engineering activities, and practical development.',
     domains: 'High Voltage Engineering, Power Transmission, Electrical Safety, Technical Publications',
     objectives: 'Conduct industrial substation visits, smart metering demos, circuit simulation challenges, and IEI national student paper contests.',
+  },
+  {
+    id: 'ieee-student-branch',
+    name: 'IEEE Student Branch',
+    slug: 'ieee-student-branch',
+    category: 'Extra-Curricular Activities',
+    department: 'ECE',
+    department_id: 'dept-ece',
+    faculty_coordinator: 'Dr. V. Sailaja',
+    description: 'The IEEE Student Branch at Pragati Engineering College actively engages engineering scholars in global technological advancements, hosting distinguished expert lectures, signal processing workshops, and IEEE humanitarian technology projects.',
+    domains: 'Wireless Communications, IEEE Standards, Signal Processing, Robotics & Automation',
+    objectives: 'Organize annual IEEE day symposiums, technical paper presentations, women-in-engineering (WIE) tracks, and global IEEE project competitions.',
+  },
+  {
+    id: 'gdsc-pec',
+    name: 'Google Developer Student Club (GDSC)',
+    slug: 'gdsc-pec',
+    category: 'Industry 4.0',
+    department: 'CSE',
+    department_id: 'dept-cse',
+    faculty_coordinator: 'Dr. M. Radhika Mani',
+    description: 'Google Developer Student Club at Pragati Engineering College provides a vibrant platform for students to master Google technologies, Android app development, Google Cloud Platform, TensorFlow, and open-source software building.',
+    domains: 'Android Dev, Google Cloud Platform, Flutter, Machine Learning, Web Technologies',
+    objectives: 'Host Google Solution Challenge buildathons, Google Cloud Study Jams, Flutter cross-platform bootcamps, and open-source hackathons.',
+  },
+  {
+    id: 'csi-student-chapter',
+    name: 'CSI Student Chapter',
+    slug: 'csi-student-chapter',
+    category: 'Extra-Curricular Activities',
+    department: 'CSE',
+    department_id: 'dept-cse',
+    faculty_coordinator: 'Dr. D.V. Manjula',
+    description: 'The Computer Society of India (CSI) Student Chapter in the CSE Department organizes Machine Learning Project Expos, Scratch Programming workshops, national IT quizzes, AI/ML technical seminars, and placement preparation series.',
+    domains: 'Computer Science, Machine Learning, IT Quizzes, Software Expos, Scratch Programming',
+    objectives: 'Host state-level technical symposiums (STRIDES/EPROZYNE), project expos, competitive coding challenges, and guest lectures.',
+  },
+  {
+    id: 'iste-student-chapter',
+    name: 'ISTE Student Chapter',
+    slug: 'iste-student-chapter',
+    category: 'Extra-Curricular Activities',
+    department: 'EEE',
+    department_id: 'dept-eee',
+    faculty_coordinator: 'Mr. K.V. Durga Prasad',
+    description: 'The Indian Society for Technical Education (ISTE) Chapter at Pragati Engineering College promotes quality technical education, student-faculty research initiatives, paper contests, and engineering skill development workshops.',
+    domains: 'Technical Education, Research Papers, Skill Enhancement, Innovation',
+    objectives: 'Coordinate ISTE annual student conventions, technical paper competitions, expert talks on emerging tech, and hands-on skill workshops.',
+  },
+  {
+    id: 'aws-academy-group',
+    name: 'PEC-AWS Academy Student Builder Group',
+    slug: 'aws-academy-group',
+    category: 'Industry 4.0',
+    department: 'IT',
+    department_id: 'dept-it',
+    faculty_coordinator: 'Dr. M. Uma Devi',
+    description: 'The AWS Academy Student Builder Group at Pragati Engineering College offers structured cloud computing training, preparing students for AWS Cloud Practitioner and Solutions Architect professional certifications.',
+    domains: 'AWS Cloud Architecture, Cloud Security, Serverless Computing, DevOps Pipelines',
+    objectives: 'Conduct AWS Cloud certification bootcamps, serverless microservice labs, cloud security challenges, and cloud project exhibitions.',
+  },
+  {
+    id: 'society-for-data-science',
+    name: 'Society for Data Science (SfDS)',
+    slug: 'society-for-data-science',
+    category: 'Industry 4.0',
+    department: 'CSE(DS)',
+    department_id: 'dept-cseds',
+    faculty_coordinator: 'Mr. M.V. Rajesh',
+    description: 'Inaugurated at Pragati Engineering College in November 2023, the Society for Data Science empowers students with statistical modeling, big data analytics, predictive AI, and real-world data product showcases.',
+    domains: 'Data Science, Big Data Analytics, Predictive Modeling, Machine Learning',
+    objectives: 'Host the annual Data Product Panoply, Kaggle-style data science challenges, Python data analytics bootcamps, and industry analytics series.',
   },
 ];

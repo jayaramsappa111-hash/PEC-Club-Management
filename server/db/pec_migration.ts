@@ -153,6 +153,9 @@ export async function migratePECClubs(): Promise<void> {
     for (const club of PEC_CLUBS) {
       const existing = queryOne<any>('SELECT id FROM clubs WHERE id = ? OR slug = ?', [club.id, club.slug]);
 
+      const logoUrl = club.logo_url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80';
+      const bannerUrl = club.banner_url || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&auto=format&fit=crop&q=80';
+
       if (existing) {
         execute(
           `UPDATE clubs
@@ -166,6 +169,8 @@ export async function migratePECClubs(): Promise<void> {
                description = ?,
                domains = ?,
                objectives = ?,
+               logo_url = ?,
+               banner_url = ?,
                institution_logo_url = '/assets/institutions/pragati-engineering-college/logo.png',
                status = 'ACTIVE',
                updated_at = CURRENT_TIMESTAMP
@@ -180,6 +185,8 @@ export async function migratePECClubs(): Promise<void> {
             club.description,
             club.domains,
             club.objectives,
+            logoUrl,
+            bannerUrl,
             existing.id,
           ]
         );
@@ -187,8 +194,8 @@ export async function migratePECClubs(): Promise<void> {
         execute(
           `INSERT INTO clubs (
             id, institution_id, name, slug, description, category, department,
-            faculty_coordinator, institution_logo_url, status, domains, objectives, department_id
-          ) VALUES (?, 'pec', ?, ?, ?, ?, ?, ?, '/assets/institutions/pragati-engineering-college/logo.png', 'ACTIVE', ?, ?, ?)`,
+            faculty_coordinator, logo_url, banner_url, institution_logo_url, status, domains, objectives, department_id
+          ) VALUES (?, 'pec', ?, ?, ?, ?, ?, ?, ?, ?, '/assets/institutions/pragati-engineering-college/logo.png', 'ACTIVE', ?, ?, ?)`,
           [
             club.id,
             club.name,
@@ -197,6 +204,8 @@ export async function migratePECClubs(): Promise<void> {
             club.category,
             club.department,
             club.faculty_coordinator,
+            logoUrl,
+            bannerUrl,
             club.domains,
             club.objectives,
             club.department_id,
