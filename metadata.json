@@ -1,0 +1,6 @@
+{
+  "name": "Technical Club Management Platform",
+  "description": "Centralized lifecycle management platform for Pragati Engineering College (PEC) student clubs, technical societies, memberships, events, verified attendance, digital ID passes, and accredited portfolios.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
