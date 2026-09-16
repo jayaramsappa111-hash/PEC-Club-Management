@@ -13,7 +13,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   initialMode = 'login',
 }) => {
-  const { login, register } = useAuth();
+  const { login, register, loginWithGoogle } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -27,6 +27,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Google sign-in could not be completed.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,12 +72,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillTestCredentials = (testId: string, testPass: string) => {
-    setIdentifier(testId);
-    setPassword(testPass);
-    setError(null);
   };
 
   return (
@@ -135,6 +142,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <span>{error}</span>
           </div>
         )}
+
+        {/* Google Authentication Button */}
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 disabled:bg-slate-100 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2.5 shadow-xs hover:border-slate-400 cursor-pointer"
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
+            <span>Continue with Google Account</span>
+          </button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+              <span className="bg-white px-2.5 text-slate-400 font-semibold">
+                or use institutional email / roll no
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* Strict Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -243,7 +291,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="e.g. admin@pragati.ac.in or 23A31A0501"
+                    placeholder="e.g. student@pragati.ac.in or 23A31A0501"
                     className="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-navy-900 focus:ring-1 focus:ring-navy-900 font-medium"
                   />
                 </div>
@@ -273,7 +321,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 mt-2 bg-navy-900 hover:bg-navy-800 disabled:bg-slate-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs"
+            className="w-full py-2.5 mt-2 bg-navy-900 hover:bg-navy-800 disabled:bg-slate-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
           >
             {loading ? (
               <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -286,63 +334,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </form>
 
-        {/* Institutional Test Account Reference */}
-        {mode === 'login' && (
-          <div className="mt-5 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-[11px] font-bold text-slate-700 mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-navy-900 font-display">
-                <ShieldCheck className="w-3.5 h-3.5 text-navy-900" />
-                Institutional Testing Credentials (Real SQLite Database)
-              </span>
-            </div>
-            <div className="space-y-1.5 text-[11px]">
-              <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200">
-                <div>
-                  <span className="font-bold text-slate-800">Super Admin / Principal:</span>{' '}
-                  <span className="font-record-code text-slate-600">admin@pragati.ac.in</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => fillTestCredentials('admin@pragati.ac.in', 'Password123!')}
-                  className="px-2 py-0.5 rounded bg-slate-100 text-navy-900 hover:bg-slate-200 font-semibold border border-slate-300 text-[10px]"
-                >
-                  Use Fill
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200">
-                <div>
-                  <span className="font-bold text-slate-800">Faculty Coordinator:</span>{' '}
-                  <span className="font-record-code text-slate-600">faculty.ece@pragati.ac.in</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => fillTestCredentials('faculty.ece@pragati.ac.in', 'Password123!')}
-                  className="px-2 py-0.5 rounded bg-slate-100 text-navy-900 hover:bg-slate-200 font-semibold border border-slate-300 text-[10px]"
-                >
-                  Use Fill
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200">
-                <div>
-                  <span className="font-bold text-slate-800">Student (Roll No: 23A31A0501):</span>{' '}
-                  <span className="font-record-code text-slate-600">23A31A0501</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => fillTestCredentials('23A31A0501', 'Password123!')}
-                  className="px-2 py-0.5 rounded bg-slate-100 text-navy-900 hover:bg-slate-200 font-semibold border border-slate-300 text-[10px]"
-                >
-                  Use Fill
-                </button>
-              </div>
-            </div>
-            <div className="mt-2 text-[10px] text-slate-500 italic text-center">
-              All accounts authenticate with hashed passwords via SQLite backend (`/api/v1/auth/login`).
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
