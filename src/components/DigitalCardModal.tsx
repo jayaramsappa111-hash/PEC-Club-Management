@@ -16,7 +16,7 @@ export const DigitalCardModal: React.FC<DigitalCardModalProps> = ({ card, onClos
     const url = api.memberships.getCardPdfUrl(card.id);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `pec-membership-pass-${card.membership_id}.pdf`;
+    link.download = `pu-membership-pass-${card.membership_id}.pdf`;
     link.click();
   };
 
@@ -34,7 +34,7 @@ export const DigitalCardModal: React.FC<DigitalCardModalProps> = ({ card, onClos
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-950 text-xs font-semibold mb-2">
             <Building2 className="w-3.5 h-3.5 text-blue-900" /> Pragati University
           </div>
-          <h3 className="text-lg font-bold text-slate-900">Student Club Membership Smart Pass</h3>
+          <h3 className="text-lg font-bold text-slate-900 font-display">Student Club Membership Smart Pass</h3>
           <p className="text-xs text-slate-500">Cryptographically verifiable institutional technical society pass</p>
         </div>
 

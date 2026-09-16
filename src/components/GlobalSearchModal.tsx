@@ -46,7 +46,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search PEC technical societies, workshops, circulars, roadmaps, project registry..."
+            placeholder="Search Pragati University technical societies, workshops, circulars, roadmaps, project registry..."
             className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden"
             autoFocus
           />
@@ -55,7 +55,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               <X className="w-4 h-4" />
             </button>
           )}
-          <button onClick={onClose} className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1 bg-white border border-slate-200 rounded font-mono">
+          <button onClick={onClose} className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1 bg-white border border-slate-200 rounded font-record-code">
             ESC
           </button>
         </div>
@@ -73,8 +73,8 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               {/* Clubs */}
               {results.clubs?.length > 0 && (
                 <div>
-                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-blue-900" />
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-display">
+                    <Layers className="w-3.5 h-3.5 text-navy-900" />
                     Technical Clubs &amp; Chapters ({results.clubs.length})
                   </div>
                   <div className="space-y-1">
@@ -88,10 +88,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                         className="p-2.5 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-between transition group border border-transparent hover:border-slate-200"
                       >
                         <div>
-                          <div className="text-xs font-bold text-slate-900 group-hover:text-blue-900">{c.name}</div>
+                          <div className="text-xs font-bold text-slate-900 group-hover:text-navy-900">{c.name}</div>
                           <div className="text-[11px] text-slate-500 line-clamp-1">{c.description}</div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-900 transition" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-navy-900 transition" />
                       </div>
                     ))}
                   </div>
@@ -101,8 +101,8 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               {/* Events */}
               {results.events?.length > 0 && (
                 <div>
-                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-blue-900" />
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-display">
+                    <Calendar className="w-3.5 h-3.5 text-navy-900" />
                     Scheduled Events &amp; Workshops ({results.events.length})
                   </div>
                   <div className="space-y-1">
@@ -116,10 +116,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                         className="p-2.5 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-between transition group border border-transparent hover:border-slate-200"
                       >
                         <div>
-                          <div className="text-xs font-bold text-slate-900 group-hover:text-blue-900">{e.title}</div>
+                          <div className="text-xs font-bold text-slate-900 group-hover:text-navy-900">{e.title}</div>
                           <div className="text-[11px] text-slate-500 line-clamp-1">{e.venue} &bull; {e.event_type}</div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-900 transition" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-navy-900 transition" />
                       </div>
                     ))}
                   </div>
@@ -129,8 +129,8 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               {/* Projects */}
               {results.projects?.length > 0 && (
                 <div>
-                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-blue-900" />
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-display">
+                    <ShieldCheck className="w-3.5 h-3.5 text-navy-900" />
                     Student Innovation Projects ({results.projects.length})
                   </div>
                   <div className="space-y-1">
@@ -144,10 +144,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                         className="p-2.5 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-between transition group border border-transparent hover:border-slate-200"
                       >
                         <div>
-                          <div className="text-xs font-bold text-slate-900 group-hover:text-blue-900">{p.title}</div>
+                          <div className="text-xs font-bold text-slate-900 group-hover:text-navy-900">{p.title}</div>
                           <div className="text-[11px] text-slate-500 line-clamp-1">{p.domain} &bull; {p.creator_name}</div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-900 transition" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-navy-900 transition" />
                       </div>
                     ))}
                   </div>

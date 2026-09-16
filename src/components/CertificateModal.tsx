@@ -20,7 +20,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
     const url = api.certificates.getPdfUrl(certificate.id);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `pec-certificate-${certificate.certificate_number || certificate.certificate_id}.pdf`;
+    link.download = `pu-certificate-${certificate.certificate_number || certificate.certificate_id}.pdf`;
     link.click();
   };
 
@@ -40,7 +40,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-950 text-xs font-semibold mb-2">
             <Building2 className="w-3.5 h-3.5 text-amber-800" /> Pragati University
           </div>
-          <h3 className="text-lg font-bold text-slate-900">Official Credential Record</h3>
+          <h3 className="text-lg font-bold text-slate-900 font-display">Official Credential Record</h3>
           <p className="text-xs text-slate-500">Tamper-proof verifiable credential signed by Institutional Faculty Leadership</p>
         </div>
 
@@ -58,23 +58,23 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
             PRAGATI UNIVERSITY &bull; STUDENT CLUBS
           </div>
 
-          <h2 className="text-xl md:text-2xl font-serif font-bold text-slate-900 tracking-wide mt-2 mb-1">
+          <h2 className="text-xl md:text-2xl font-academic-crest font-bold text-slate-900 tracking-wide mt-2 mb-1">
             CERTIFICATE OF {certificate.type || certificate.certificate_type || 'TECHNICAL EXCELLENCE'}
           </h2>
 
           <p className="text-xs text-slate-500 italic mt-2">This is to certify that</p>
 
-          <div className="text-xl md:text-2xl font-serif font-bold text-blue-950 tracking-wide my-2">
+          <div className="text-xl md:text-2xl font-academic-crest font-bold text-blue-950 tracking-wide my-2">
             {certificate.recipient_name || certificate.student_name}
           </div>
 
-          <div className="text-xs text-slate-600 font-mono mb-2">
+          <div className="text-xs text-slate-600 font-record-code mb-2">
             Roll No: {certificate.recipient_roll || '23A31A0501'}
           </div>
 
           <p className="text-xs text-slate-700 max-w-lg mx-auto leading-relaxed">
             {certificate.description ||
-              `has demonstrated exceptional technical engagement, technical problem-solving, and active contribution toward institutional workshops and hackathons organized by ${certificate.club_name || 'PEC Chapters'}.`}
+              `has demonstrated exceptional technical engagement, technical problem-solving, and active contribution toward institutional workshops and hackathons organized by ${certificate.club_name || 'PU Chapters'}.`}
           </p>
 
           <div className="mt-6 pt-6 border-t border-slate-200 grid grid-cols-3 gap-4 items-end text-left text-xs">

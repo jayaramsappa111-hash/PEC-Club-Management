@@ -7,7 +7,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
-    <footer className="bg-[#0b1f33] border-t border-[#061220] text-slate-300 text-xs py-10 mt-auto">
+    <footer className="bg-navy-950 border-t border-navy-900 text-slate-300 text-xs py-10 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="space-y-3 md:col-span-2">
           <div className="flex items-center gap-2.5 text-white font-bold text-sm">
@@ -21,7 +21,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 }}
               />
             </div>
-            <span>Pragati University</span>
+            <span className="font-display font-extrabold tracking-tight">Pragati University</span>
           </div>
           <p className="text-slate-300 text-xs leading-relaxed max-w-md">
             Pragati University Student Club Management Platform. Centralized governance for accredited student clubs, technical societies, departmental chapters, hackathons, and certified achievements.
@@ -33,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         <div>
-          <h4 className="text-white font-bold text-xs tracking-wider uppercase mb-3">Verification &amp; Portals</h4>
+          <h4 className="text-white font-bold text-xs tracking-wider uppercase mb-3 font-display">Verification &amp; Portals</h4>
           <ul className="space-y-2 text-xs">
             <li>
               <button
@@ -73,7 +73,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         <div>
-          <h4 className="text-white font-bold text-xs tracking-wider uppercase mb-3">Institutional Links</h4>
+          <h4 className="text-white font-bold text-xs tracking-wider uppercase mb-3 font-display">Institutional Links</h4>
           <ul className="space-y-2 text-xs">
             <li>
               <button onClick={() => onNavigate('clubs')} className="hover:text-white transition text-slate-300">
@@ -111,7 +111,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         <div className="flex items-center gap-4 mt-3 sm:mt-0">
           <span>Student Club Management Platform</span>
           <span>&bull;</span>
-          <span className="text-slate-300 font-mono">v2.6.4</span>
+          <span className="text-slate-300 font-record-code">v2.6.4</span>
         </div>
       </div>
     </footer>

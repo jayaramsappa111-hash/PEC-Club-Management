@@ -93,15 +93,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
       {/* Official Institutional Top Bar */}
-      <div className="bg-[#0b1f33] text-white text-[11px] px-4 py-1.5 border-b border-[#061220]">
+      <div className="bg-navy-950 text-white text-[11px] px-4 py-1.5 border-b border-navy-900">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1">
           <div className="flex items-center gap-2 text-slate-200 text-center sm:text-left">
-            <span className="font-semibold text-white tracking-wide">PRAGATI ENGINEERING COLLEGE (AUTONOMOUS)</span>
+            <span className="font-bold text-white tracking-wide">PRAGATI UNIVERSITY</span>
             <span className="hidden md:inline text-slate-400">•</span>
-            <span className="hidden md:inline text-slate-300">Approved by AICTE | Affiliated to JNTUK | Accredited by NAAC 'A' Grade</span>
+            <span className="hidden md:inline text-slate-300">Autonomous University &bull; Approved by UGC &amp; AICTE &bull; NAAC 'A' Accredited</span>
           </div>
           <div className="flex items-center gap-3 text-slate-300 text-[10px]">
-            <span className="hidden sm:inline bg-[#102a43] px-2 py-0.5 rounded text-slate-200 font-mono border border-slate-700/60">
+            <span className="hidden sm:inline bg-navy-900 px-2 py-0.5 rounded text-slate-200 font-record-code border border-slate-700/60">
               Academic Year 2025-2026
             </span>
             <a
@@ -110,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               rel="noreferrer"
               className="hover:text-white flex items-center gap-1 transition text-slate-300"
             >
-              Official College Website <ExternalLink className="w-2.5 h-2.5" />
+              Official University Portal <ExternalLink className="w-2.5 h-2.5" />
             </a>
           </div>
         </div>
@@ -135,9 +135,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
             </div>
             <div>
-              <div className="font-bold text-sm sm:text-base tracking-tight text-slate-900 flex items-center gap-1.5 leading-tight">
+              <div className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 font-display flex items-center gap-1.5 leading-tight">
                 Pragati University
-                <span className="hidden sm:inline-block text-[10px] px-1.5 py-0.5 bg-slate-100 text-[#0b1f33] border border-slate-300 font-bold rounded">
+                <span className="hidden sm:inline-block text-[10px] px-1.5 py-0.5 bg-navy-50 text-navy-900 border border-navy-200 font-bold rounded">
                   PU
                 </span>
               </div>
@@ -158,8 +158,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => onNavigate(item.id)}
                   className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                     isActive
-                      ? 'bg-[#0b1f33] text-white shadow-xs'
-                      : 'text-slate-700 hover:text-[#0b1f33] hover:bg-slate-100'
+                      ? 'bg-navy-900 text-white shadow-xs'
+                      : 'text-slate-700 hover:text-navy-900 hover:bg-slate-100'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -188,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => onNavigate('verify-hub')}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 border ${
                 currentTab === 'verify-hub' || currentTab === 'verify-membership' || currentTab === 'verify-certificate'
-                  ? 'bg-[#0b1f33] text-white border-[#0b1f33]'
+                  ? 'bg-navy-900 text-white border-navy-900 shadow-xs'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
               }`}
               title="Public Verification (Certificates & Digital Cards)"
@@ -216,14 +216,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {showNotifications && (
                   <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-xl shadow-lg p-4 z-50 animate-in fade-in">
                     <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <div className="font-semibold text-xs text-slate-900 flex items-center gap-1.5">
-                        <Bell className="w-4 h-4 text-[#0b1f33]" />
+                      <div className="font-semibold text-xs text-slate-900 flex items-center gap-1.5 font-display">
+                        <Bell className="w-4 h-4 text-navy-900" />
                         Official Notifications ({notifications.length})
                       </div>
                       {unreadCount > 0 && (
                         <button
                           onClick={handleMarkAllRead}
-                          className="text-xs text-[#0b1f33] hover:underline font-semibold"
+                          className="text-xs text-navy-900 hover:underline font-semibold"
                         >
                           Mark all read
                         </button>
@@ -245,7 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           >
                             <div className="font-semibold text-slate-900">{n.title}</div>
                             <div className="text-slate-600 mt-0.5 leading-relaxed">{n.message}</div>
-                            <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                            <div className="text-[10px] text-slate-400 mt-1 font-record-code">
                               {new Date(n.created_at).toLocaleString()}
                             </div>
                           </div>
@@ -264,12 +264,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2 p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition"
                 >
-                  <div className="w-8 h-8 rounded bg-[#0b1f33] text-white flex items-center justify-center font-bold text-xs">
+                  <div className="w-8 h-8 rounded bg-navy-900 text-white flex items-center justify-center font-bold text-xs">
                     {user.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="hidden xl:block text-left">
                     <div className="text-xs font-bold text-slate-900 truncate max-w-[120px]">{user.name}</div>
-                    <div className="text-[10px] text-slate-500 font-mono">{user.student_id || user.roles[0]}</div>
+                    <div className="text-[10px] text-slate-500 font-record-code">{user.student_id || user.roles[0]}</div>
                   </div>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
@@ -277,14 +277,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50 animate-in fade-in">
                     <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50">
-                      <div className="text-xs font-bold text-slate-900">{user.name}</div>
+                      <div className="text-xs font-bold text-slate-900 font-display">{user.name}</div>
                       <div className="text-[11px] text-slate-500 truncate">{user.email}</div>
                       <div className="mt-1.5 flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded bg-slate-200 text-[#0b1f33] text-[10px] font-bold">
+                        <span className="px-2 py-0.5 rounded bg-navy-100 text-navy-900 text-[10px] font-bold">
                           {user.roles[0].replace('_', ' ')}
                         </span>
                         {user.student_id && (
-                          <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-mono font-medium">
+                          <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-record-code font-medium">
                             {user.student_id}
                           </span>
                         )}
@@ -298,7 +298,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }}
                       className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 hover:text-slate-900 flex items-center gap-2"
                     >
-                      <User className="w-3.5 h-3.5 text-[#0b1f33]" />
+                      <User className="w-3.5 h-3.5 text-navy-900" />
                       Student Portal &amp; Digital ID
                     </button>
 
@@ -310,7 +310,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         }}
                         className="w-full text-left px-4 py-2 text-xs text-slate-900 font-semibold hover:bg-slate-100 flex items-center gap-2"
                       >
-                        <ShieldCheck className="w-3.5 h-3.5 text-[#0b1f33]" />
+                        <ShieldCheck className="w-3.5 h-3.5 text-navy-900" />
                         Administrative Portal
                       </button>
                     )}
@@ -334,7 +334,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={onOpenAuth}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#0b1f33] hover:bg-[#102a43] text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-800 text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5"
                 >
                   <Lock className="w-3.5 h-3.5" />
                   Sign In
@@ -368,7 +368,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }}
                   className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition ${
                     isActive
-                      ? 'bg-[#0b1f33] text-white'
+                      ? 'bg-navy-900 text-white'
                       : 'text-slate-700 hover:bg-slate-100'
                   }`}
                 >
@@ -385,7 +385,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center gap-2"
               >
-                <QrCode className="w-4 h-4 text-[#0b1f33]" />
+                <QrCode className="w-4 h-4 text-navy-900" />
                 Certificate &amp; Card Verification Hub
               </button>
             </div>
