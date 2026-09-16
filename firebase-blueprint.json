@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Club": {
+      "title": "Club",
+      "description": "Student club entity",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "Membership": {
+      "title": "Membership",
+      "description": "Club membership document",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "club_id": { "type": "string" }
+      }
+    },
+    "Event": {
+      "title": "Event",
+      "description": "Club event document",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "club_id": { "type": "string" }
+      }
+    },
+    "EventAttendance": {
+      "title": "EventAttendance",
+      "description": "Event attendance record",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "event_id": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/clubs/{clubId}": {
+      "schema": { "$ref": "#/entities/Club" },
+      "description": "Public student clubs"
+    },
+    "/memberships/{membershipId}": {
+      "schema": { "$ref": "#/entities/Membership" },
+      "description": "Student club memberships"
+    },
+    "/events/{eventId}": {
+      "schema": { "$ref": "#/entities/Event" },
+      "description": "Club events"
+    },
+    "/event_attendance/{attendanceId}": {
+      "schema": { "$ref": "#/entities/EventAttendance" },
+      "description": "Event attendance logs"
+    }
+  }
+}

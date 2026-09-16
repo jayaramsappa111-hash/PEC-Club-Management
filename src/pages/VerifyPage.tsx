@@ -92,21 +92,30 @@ export const VerifyPage: React.FC<VerifyPageProps> = ({ initialCode, onNavigate 
         <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Sample Pass IDs:</span>
         <button
           onClick={() => {
-            setCode('MEM-GDSC-2026-001');
-            performVerification('MEM-GDSC-2026-001');
+            setCode('PU-2026-000101');
+            performVerification('PU-2026-000101');
           }}
           className="px-2.5 py-1 rounded-md bg-white border border-slate-300 text-blue-900 hover:border-blue-900 font-mono text-[11px] font-bold"
         >
-          MEM-GDSC-2026-001
+          PU-2026-000101
         </button>
         <button
           onClick={() => {
-            setCode('CERT-PU-2026-001');
-            performVerification('CERT-PU-2026-001');
+            setCode('PU-CERT-2026-00142');
+            performVerification('PU-CERT-2026-00142');
           }}
           className="px-2.5 py-1 rounded-md bg-white border border-slate-300 text-blue-900 hover:border-blue-900 font-mono text-[11px] font-bold"
         >
-          CERT-PU-2026-001
+          PU-CERT-2026-00142
+        </button>
+        <button
+          onClick={() => {
+            setCode('pu-vtoken-99824a7bc1d2e3f4a5b6c7d8e9f01122');
+            performVerification('pu-vtoken-99824a7bc1d2e3f4a5b6c7d8e9f01122');
+          }}
+          className="px-2.5 py-1 rounded-md bg-white border border-slate-300 text-blue-900 hover:border-blue-900 font-mono text-[11px] font-bold"
+        >
+          pu-vtoken-99824a7bc...
         </button>
       </div>
 

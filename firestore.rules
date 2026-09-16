@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Public Data: Clubs, Events, Projects, Resources, Certificates
+    match /clubs/{clubId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /resources/{resourceId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /certificates/{certificateId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if isOwner(userId);
+    }
+
+    // Memberships: Users can read and manage their own membership records
+    match /memberships/{membershipId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn() && (
+        (request.resource != null && request.resource.data.user_id == request.auth.uid) ||
+        (resource != null && resource.data.user_id == request.auth.uid)
+      );
+    }
+
+    // Event Registrations: Users manage their own event registrations
+    match /event_registrations/{registrationId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn() && (
+        (request.resource != null && request.resource.data.user_id == request.auth.uid) ||
+        (resource != null && resource.data.user_id == request.auth.uid)
+      );
+    }
+
+    // Event Attendance: Users manage their own attendance records
+    match /event_attendance/{attendanceId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn() && (
+        (request.resource != null && request.resource.data.user_id == request.auth.uid) ||
+        (resource != null && resource.data.user_id == request.auth.uid)
+      );
+    }
+  }
+}

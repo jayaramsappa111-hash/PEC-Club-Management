@@ -1,8 +1,8 @@
 {
   "apiKey": "demo-api-key",
-  "authDomain": "demo-app.firebaseapp.com",
-  "projectId": "demo-app",
-  "storageBucket": "demo-app.appspot.com",
+  "authDomain": "lofty-kit-4b5pv.firebaseapp.com",
+  "projectId": "lofty-kit-4b5pv",
+  "storageBucket": "lofty-kit-4b5pv.appspot.com",
   "messagingSenderId": "1234567890",
   "appId": "1:1234567890:web:1234567890"
 }
