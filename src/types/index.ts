@@ -141,6 +141,15 @@ export interface EventRegistration {
   qr_code_token: string;
   qrDataUrl?: string;
   created_at: string;
+  attendance_claim_status?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  attendance_claim_time?: string;
+  event_title?: string;
+  start_datetime?: string;
+  end_datetime?: string;
+  venue?: string;
+  event_type?: string;
+  poster?: string;
+  club_name?: string;
 }
 
 export interface EventAttendance {

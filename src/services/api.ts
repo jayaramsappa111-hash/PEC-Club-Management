@@ -262,6 +262,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(body),
       }),
+    selfCheckInAttendance: (eventId: string, code: string) =>
+      request<{ message: string; checkInTime: string }>(`/events/${eventId}/attendance/self-check-in`, {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      }),
     submitFeedback: (eventId: string, data: { rating: number; comments?: string; suggestions?: string }) =>
       request<{ message: string }>(`/events/${eventId}/feedback`, {
         method: 'POST',
@@ -269,6 +274,17 @@ export const api = {
       }),
     getFeedback: (eventId: string) =>
       request<{ feedbacks: any[] }>(`/events/${eventId}/feedback`),
+    claimAttendance: (eventId: string) =>
+      request<{ message: string; status: string }>(`/events/${eventId}/claim-attendance`, {
+        method: 'POST',
+      }),
+    getClaims: (eventId: string) =>
+      request<{ claims: any[] }>(`/events/${eventId}/claims`),
+    approveClaim: (eventId: string, body: { registration_id: string; action: 'APPROVE' | 'REJECT'; certificate_type?: string }) =>
+      request<{ message: string; status: string; certificateCode?: string }>(`/events/${eventId}/approve-claim`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
   },
 
   // Certificates

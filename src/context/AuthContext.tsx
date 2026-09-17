@@ -33,7 +33,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: (reason?: string) => Promise<void>;
   refreshUser: () => Promise<void>;
-  switchRoleUser: (role: 'SUPER_ADMIN' | 'FACULTY_COORDINATOR' | 'CLUB_ADMIN' | 'CLUB_MEMBER' | 'STUDENT') => Promise<void>;
+  switchRoleUser: (role: 'SUPER_ADMIN' | 'DEPARTMENT_ADMIN' | 'FACULTY_COORDINATOR' | 'CLUB_ADMIN' | 'CLUB_MEMBER' | 'STUDENT') => Promise<void>;
   hasRole: (roles: RoleName[]) => boolean;
   hasPermission: (permission: string) => boolean;
   clearError: () => void;
@@ -217,16 +217,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 2. Also authenticate/sync with Firebase Auth SDK if valid email format
       if (res.user.email.includes('@')) {
         try {
-          await signInWithEmailAndPassword(auth, res.user.email, pass);
-        } catch (fbErr: any) {
-          // If user doesn't exist in Firebase Auth yet, provision in Firebase Auth
-          if (fbErr.code === 'auth/user-not-found' || fbErr.code === 'auth/invalid-credential') {
-            try {
-              await createUserWithEmailAndPassword(auth, res.user.email, pass);
-            } catch {
-              // Ignore secondary creation errors if password requirements differ
+          try {
+            await signInWithEmailAndPassword(auth, res.user.email, pass);
+          } catch (fbErr: any) {
+            // If user doesn't exist in Firebase Auth yet, provision in Firebase Auth
+            if (fbErr.code === 'auth/user-not-found' || fbErr.code === 'auth/invalid-credential') {
+              try {
+                await createUserWithEmailAndPassword(auth, res.user.email, pass);
+              } catch {
+                // Ignore secondary creation errors if password requirements differ
+              }
             }
           }
+        } catch (fbFatalErr) {
+          console.warn('[Firebase Auth] Ignored fatal Firebase initialization error:', fbFatalErr);
         }
       }
     } catch (err: any) {
@@ -242,7 +246,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
     try {
-      // 1. Register with Firebase Auth SDK
+      // 1. Register with Firebase Auth SDK safely
       if (data.email && data.password) {
         try {
           await createUserWithEmailAndPassword(auth, data.email, data.password);
@@ -252,7 +256,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       }
+    } catch (fbFatalErr) {
+      console.warn('[Firebase Auth] Ignored fatal Firebase registration error:', fbFatalErr);
+    }
 
+    try {
       // 2. Register with University Database
       const res = await api.auth.register(data);
       if (!res.token || !res.user) {
@@ -334,9 +342,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return token || getAuthToken();
   };
 
-  const switchRoleUser = async (role: 'SUPER_ADMIN' | 'FACULTY_COORDINATOR' | 'CLUB_ADMIN' | 'CLUB_MEMBER' | 'STUDENT') => {
+  const switchRoleUser = async (role: 'SUPER_ADMIN' | 'DEPARTMENT_ADMIN' | 'FACULTY_COORDINATOR' | 'CLUB_ADMIN' | 'CLUB_MEMBER' | 'STUDENT') => {
     const roleEmailMap: Record<string, string> = {
       SUPER_ADMIN: 'admin@pragati.ac.in',
+      DEPARTMENT_ADMIN: 'deptadmin.cse@pragati.ac.in',
       FACULTY_COORDINATOR: 'faculty.ece@pragati.ac.in',
       CLUB_ADMIN: 'president.cse@pragati.ac.in',
       CLUB_MEMBER: 'student.cse@pragati.ac.in',

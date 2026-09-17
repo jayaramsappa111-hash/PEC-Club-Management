@@ -38,33 +38,42 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
   const [selectedCard, setSelectedCard] = useState<Membership | null>(null);
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
+  const fetchAllData = async () => {
+    setLoading(true);
+    try {
+      const [profRes, membRes, regRes, certRes, roadRes] = await Promise.all([
+        api.users.getProfile(),
+        api.memberships.getMyCards(),
+        api.events.getMyRegistrations(),
+        api.certificates.list(),
+        api.roadmaps.list(),
+      ]);
+      setProfile(profRes.user);
+      setMemberships(membRes.cards || []);
+      setRegistrations(regRes.registrations || []);
+      setCertificates(certRes.certificates || []);
+      setBadges(roadRes.badges || []);
+    } catch (err) {
+      console.error('Failed to load profile data', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
-
-    const fetchAllData = async () => {
-      setLoading(true);
-      try {
-        const [profRes, membRes, regRes, certRes, roadRes] = await Promise.all([
-          api.users.getProfile(),
-          api.memberships.getMyCards(),
-          api.events.getMyRegistrations(),
-          api.certificates.list(),
-          api.roadmaps.list(),
-        ]);
-        setProfile(profRes.user);
-        setMemberships(membRes.cards || []);
-        setRegistrations(regRes.registrations || []);
-        setCertificates(certRes.certificates || []);
-        setBadges(roadRes.badges || []);
-      } catch (err) {
-        console.error('Failed to load profile data', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAllData();
   }, [user]);
+
+  const handleClaimAttendance = async (eventId: string) => {
+    try {
+      await api.events.claimAttendance(eventId);
+      const regRes = await api.events.getMyRegistrations();
+      setRegistrations(regRes.registrations || []);
+    } catch (err) {
+      console.error('Failed to claim attendance & certificate', err);
+    }
+  };
 
   if (!user) {
     return (
@@ -242,9 +251,41 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
                   <h4 className="text-sm font-bold text-slate-900 mb-1">{reg.event_title}</h4>
                   <div className="text-xs text-slate-500 mb-3">Host: {reg.club_name}</div>
 
-                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1 mb-3">
-                    <div className="text-slate-500 text-[10px] font-bold uppercase">QR Entry Token</div>
-                    <div className="font-mono text-slate-900 font-bold text-xs">{reg.qr_code_token || 'VALID-PASS'}</div>
+                  {/* Attendance & Certificate Claim Section */}
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-2 mb-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500 text-[10px] font-bold uppercase">QR Entry Token</span>
+                      <span className="font-mono text-slate-900 font-bold text-[11px]">{reg.qr_code_token || 'VALID-PASS'}</span>
+                    </div>
+
+                    <div className="border-t border-slate-200/60 pt-2 space-y-1.5">
+                      <div className="text-[9px] text-slate-400 font-bold uppercase">Attendance &amp; Certificate Claim</div>
+                      
+                      {reg.attendance_claim_status === 'PENDING' ? (
+                        <div className="flex items-center gap-1.5 text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded text-[10px] font-bold animate-pulse">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span>Pending Faculty Approval</span>
+                        </div>
+                      ) : reg.attendance_claim_status === 'APPROVED' ? (
+                        <div className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded text-[10px] font-bold">
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>Attendance Verified &amp; Issued!</span>
+                        </div>
+                      ) : reg.attendance_claim_status === 'REJECTED' ? (
+                        <div className="flex items-center gap-1.5 text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded text-[10px] font-bold">
+                          <Clock className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                          <span>Claim Disapproved</span>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleClaimAttendance(reg.event_id)}
+                          className="w-full py-1.5 px-2 bg-blue-900 hover:bg-blue-800 text-white rounded text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Award className="w-3 h-3 text-white" />
+                          <span>Claim Attendance &amp; Cert</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 

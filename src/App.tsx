@@ -23,6 +23,9 @@ import { AuditPage } from './pages/AuditPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { VerifyPage } from './pages/VerifyPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { AdminPortal } from './pages/AdminPortal';
+import { AnnouncementsPage } from './pages/AnnouncementsPage';
+import { StakeholderSimulationBar } from './components/StakeholderSimulationBar';
 
 import { Membership, Certificate } from './types';
 import { api } from './services/api';
@@ -151,6 +154,10 @@ const MainLayout: React.FC = () => {
           <GalleryPage />
         )}
 
+        {currentTab === 'announcements' && (
+          <AnnouncementsPage />
+        )}
+
         {currentTab === 'verify' && (
           <VerifyPage
             initialCode={tabParam}
@@ -158,7 +165,11 @@ const MainLayout: React.FC = () => {
           />
         )}
 
-        {currentTab === 'profile' && (
+        {currentTab === 'admin-portal' && (
+          <AdminPortal />
+        )}
+
+        {(currentTab === 'profile' || currentTab === 'student-portal') && (
           <ProfilePage
             onNavigate={handleNavigate}
             onOpenAuth={() => setShowAuthModal(true)}
@@ -196,6 +207,9 @@ const MainLayout: React.FC = () => {
           onNavigateToVerify={(code) => handleNavigate('verify', code)}
         />
       )}
+
+      {/* Interactive Stakeholder Role Switcher HUD */}
+      <StakeholderSimulationBar />
     </div>
   );
 };

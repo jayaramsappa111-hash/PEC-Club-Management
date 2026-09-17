@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { db, queryOne, execute } from './database';
 import { initSchema } from './schema';
 import { migratePECClubs } from './pec_migration';
+import { enrichPECDatabase } from './pec_enrichment';
 
 export async function seedDatabase() {
   initSchema();
@@ -9,9 +10,10 @@ export async function seedDatabase() {
   // Guarantee Pragati University official data is present and migrated
   await migratePECClubs();
 
-  // Check if already seeded
+  // Check if already seeded with basic records, but still ensure real Pragati enrichment is loaded
   const existingUser = queryOne('SELECT id FROM users LIMIT 1');
   if (existingUser) {
+    await enrichPECDatabase();
     return;
   }
 
@@ -874,4 +876,5 @@ export async function seedDatabase() {
   }
 
   console.log('[Seed] Database successfully populated with relational entities!');
+  await enrichPECDatabase();
 }

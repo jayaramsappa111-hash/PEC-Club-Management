@@ -336,6 +336,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </form>
 
+        {/* Stakeholder Quick-Selector panel inside Auth Modal */}
+        <div className="mt-5 pt-4 border-t border-slate-100">
+          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2.5 text-center">
+            Institutional Demo Role Quick-Switchers
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+            {[
+              { label: 'Student', email: 'student.ece@pragati.ac.in' },
+              { label: 'Club Member', email: 'student.cse@pragati.ac.in' },
+              { label: 'Club Admin', email: 'president.cse@pragati.ac.in' },
+              { label: 'Faculty Coord', email: 'faculty.ece@pragati.ac.in' },
+              { label: 'HOD Admin', email: 'deptadmin.cse@pragati.ac.in' },
+              { label: 'Super Admin', email: 'admin@pragati.ac.in' },
+            ].map((role) => (
+              <button
+                key={role.email}
+                type="button"
+                onClick={async () => {
+                  setError(null);
+                  setLoading(true);
+                  try {
+                    await login(role.email, 'Password123!');
+                    onClose();
+                  } catch (err: any) {
+                    setError(err.message || 'Simulation sign-in failed.');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="px-2 py-1.5 bg-slate-50 hover:bg-navy-50 hover:text-navy-900 border border-slate-200 hover:border-navy-200 rounded-lg text-[10px] font-bold text-slate-700 text-center transition cursor-pointer"
+              >
+                {role.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );

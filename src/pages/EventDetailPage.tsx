@@ -19,6 +19,7 @@ import { api } from '../services/api';
 import { Event, EventRegistration } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { QRScannerModal } from '../components/QRScannerModal';
+import { SelfQRScannerModal } from '../components/SelfQRScannerModal';
 
 interface EventDetailPageProps {
   eventId: string;
@@ -48,6 +49,9 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
 
   // Scanner modal for organizers
   const [showScanner, setShowScanner] = useState(false);
+
+  // Scanner modal for students
+  const [showSelfScanner, setShowSelfScanner] = useState(false);
 
   const fetchEvent = async () => {
     setLoading(true);
@@ -194,8 +198,17 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
                     Attendance Validated &bull; Checked In
                   </div>
                 ) : (
-                  <div className="text-[10px] text-slate-500">
-                    Present QR code at event entrance for scanning
+                  <div className="space-y-2 pt-2 border-t border-emerald-200/50">
+                    <div className="text-[10px] text-slate-500">
+                      Present QR code at event entrance for scanning, or scan the official event QR:
+                    </div>
+                    <button
+                      onClick={() => setShowSelfScanner(true)}
+                      className="w-full px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-bold transition flex items-center justify-center gap-1.5 shadow-xs"
+                    >
+                      <QrCode className="w-3.5 h-3.5" />
+                      Self Check-In via QR Scanner
+                    </button>
                   </div>
                 )}
               </div>
@@ -326,6 +339,21 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
           eventId={event.id}
           onClose={() => {
             setShowScanner(false);
+            fetchEvent();
+          }}
+        />
+      )}
+
+      {/* QR Scanner Modal for Students Self-Check-In */}
+      {showSelfScanner && (
+        <SelfQRScannerModal
+          eventId={event.id}
+          eventTitle={event.title}
+          onClose={() => {
+            setShowSelfScanner(false);
+            fetchEvent();
+          }}
+          onSuccess={() => {
             fetchEvent();
           }}
         />

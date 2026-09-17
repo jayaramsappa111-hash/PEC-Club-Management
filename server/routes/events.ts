@@ -364,6 +364,64 @@ router.post('/:id/attendance/check-in', authenticate, requireRole(['SUPER_ADMIN'
   });
 });
 
+// Self-check-in for registered students scanning the projected Event QR code
+router.post('/:id/attendance/self-check-in', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const user = (req as any).user as AuthenticatedUser;
+  const { id: eventId } = req.params;
+  const { code } = req.body;
+
+  if (code !== `PU-EVENT-CHECKIN-${eventId}` && code !== eventId) {
+    res.status(400).json({ error: 'Invalid or expired event QR code' });
+    return;
+  }
+
+  const registration = queryOne<any>(
+    "SELECT * FROM event_registrations WHERE event_id = ? AND user_id = ? AND status = 'CONFIRMED'",
+    [eventId, user.id]
+  );
+
+  if (!registration) {
+    res.status(400).json({ error: 'You are not registered (or confirmed) for this event. Please register first.' });
+    return;
+  }
+
+  // Prevent duplicate check-in
+  const existingAttendance = queryOne('SELECT id, check_in_time FROM event_attendance WHERE registration_id = ?', [registration.id]);
+  if (existingAttendance) {
+    res.status(409).json({
+      error: 'You have already checked in for this event',
+      checkInTime: existingAttendance.check_in_time
+    });
+    return;
+  }
+
+  const attId = `att-self-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+  execute(
+    `INSERT INTO event_attendance (id, event_id, registration_id, user_id, status, recorded_by)
+     VALUES (?, ?, ?, ?, 'PRESENT', ?)`,
+    [attId, eventId, registration.id, user.id, user.id]
+  );
+
+  logAudit(user.id, 'ATTENDANCE_RECORDED', 'ATTENDANCE', attId, {
+    eventId,
+    studentId: user.id,
+    method: 'SELF_QR_SCAN'
+  });
+
+  await createNotification(
+    user.id,
+    'ATTENDANCE_VERIFIED',
+    'Attendance Verified!',
+    'Your self-check-in was validated successfully using the event QR code. Enjoy the session!',
+    { eventId }
+  );
+
+  res.status(201).json({
+    message: 'Attendance recorded successfully!',
+    checkInTime: new Date().toISOString()
+  });
+});
+
 // Submit Feedback
 router.post('/:id/feedback', authenticate, async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user as AuthenticatedUser;
@@ -408,6 +466,171 @@ router.get('/:id/feedback', authenticate, requireRole(['SUPER_ADMIN', 'FACULTY_C
     [id]
   );
   res.json({ feedbacks });
+});
+
+// Self-run migrations on load to ensure columns exist for attendance claims and certificate requests
+try {
+  execute("ALTER TABLE event_registrations ADD COLUMN attendance_claim_status TEXT DEFAULT 'NONE'");
+} catch (e) {
+  // Column already exists or handled
+}
+try {
+  execute("ALTER TABLE event_registrations ADD COLUMN attendance_claim_time DATETIME");
+} catch (e) {
+  // Column already exists
+}
+
+// Student: Raise claim request for authorizing attendance and certificate eligibility
+router.post('/:id/claim-attendance', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const user = (req as any).user as AuthenticatedUser;
+  const { id: eventId } = req.params;
+
+  const registration = queryOne<any>(
+    'SELECT * FROM event_registrations WHERE event_id = ? AND user_id = ?',
+    [eventId, user.id]
+  );
+
+  if (!registration) {
+    res.status(404).json({ error: 'No registration pass found. You must be registered to claim attendance.' });
+    return;
+  }
+
+  execute(
+    `UPDATE event_registrations 
+     SET attendance_claim_status = 'PENDING', attendance_claim_time = CURRENT_TIMESTAMP
+     WHERE id = ?`,
+    [registration.id]
+  );
+
+  logAudit(user.id, 'ATTENDANCE_CLAIM_REQUESTED', 'EVENT_REGISTRATION', registration.id, { eventId });
+
+  res.json({
+    message: 'Attendance claim and certificate request successfully raised. Pending Coordinator validation.',
+    status: 'PENDING'
+  });
+});
+
+// Admin: Get all registrations with pending or approved claims
+router.get('/:id/claims', authenticate, requireRole(['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'CLUB_ADMIN']), (req: Request, res: Response): void => {
+  const { id: eventId } = req.params;
+
+  const claims = queryAll(
+    `SELECT er.*, p.name as student_name, p.student_id as student_roll, p.course, u.email,
+            ea.check_in_time, ea.status as attendance_status,
+            c.id as certificate_record_id, c.certificate_id as certificate_code
+     FROM event_registrations er
+     JOIN users u ON u.id = er.user_id
+     JOIN profiles p ON p.user_id = er.user_id
+     LEFT JOIN event_attendance ea ON ea.registration_id = er.id
+     LEFT JOIN certificates c ON c.student_id = er.user_id AND c.event_id = er.event_id
+     WHERE er.event_id = ? AND er.attendance_claim_status IS NOT NULL AND er.attendance_claim_status != 'NONE'
+     ORDER BY er.attendance_claim_time DESC`,
+    [eventId]
+  );
+
+  res.json({ claims });
+});
+
+// Admin: Approve student attendance claim and immediately generate certificate
+router.post('/:id/approve-claim', authenticate, requireRole(['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'CLUB_ADMIN']), async (req: Request, res: Response): Promise<void> => {
+  const { id: eventId } = req.params;
+  const { registration_id, action, certificate_type } = req.body; // action: 'APPROVE' or 'REJECT'
+
+  if (!registration_id || !action) {
+    res.status(400).json({ error: 'registration_id and action (APPROVE or REJECT) are required' });
+    return;
+  }
+
+  const registration = queryOne<any>(
+    'SELECT * FROM event_registrations WHERE event_id = ? AND id = ?',
+    [eventId, registration_id]
+  );
+
+  if (!registration) {
+    res.status(404).json({ error: 'Registration record not found' });
+    return;
+  }
+
+  const event = queryOne<any>('SELECT * FROM events WHERE id = ?', [eventId]);
+  if (!event) {
+    res.status(404).json({ error: 'Event details not found' });
+    return;
+  }
+
+  if (action === 'REJECT') {
+    execute(
+      "UPDATE event_registrations SET attendance_claim_status = 'REJECTED' WHERE id = ?",
+      [registration_id]
+    );
+
+    await createNotification(
+      registration.user_id,
+      'CLAIM_REJECTED',
+      'Attendance Claim Disapproved',
+      `Your attendance claim for ${event.title} was declined by the coordinator. Contact support if this is an error.`,
+      { eventId }
+    );
+
+    res.json({ message: 'Claim request successfully rejected.', status: 'REJECTED' });
+    return;
+  }
+
+  // Action is APPROVE: Update status
+  execute(
+    "UPDATE event_registrations SET attendance_claim_status = 'APPROVED' WHERE id = ?",
+    [registration_id]
+  );
+
+  // 1. Record physical event attendance if not already set
+  const existingAttendance = queryOne('SELECT id FROM event_attendance WHERE registration_id = ?', [registration_id]);
+  if (!existingAttendance) {
+    const attId = `att-claim-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+    execute(
+      `INSERT INTO event_attendance (id, event_id, registration_id, user_id, status, recorded_by)
+       VALUES (?, ?, ?, ?, 'PRESENT', ?)`,
+      [attId, eventId, registration_id, registration.user_id, (req as any).user.id]
+    );
+  }
+
+  // 2. Immediately mint and generate verified digital certificate!
+  const existingCert = queryOne('SELECT id, certificate_id FROM certificates WHERE event_id = ? AND student_id = ?', [eventId, registration.user_id]);
+  let certCode = '';
+
+  if (!existingCert) {
+    const countRow = queryOne<{ count: number }>('SELECT COUNT(*) as count FROM certificates');
+    const seq = (countRow?.count || 0) + 1;
+    certCode = `CERT-2026-${String(seq).padStart(5, '0')}`;
+    const certId = `cert-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+    const verifyToken = `TOKEN-${crypto.randomBytes(8).toString('hex').toUpperCase()}`;
+
+    execute(
+      `INSERT INTO certificates (id, certificate_id, student_id, event_id, certificate_type, verification_token, status)
+       VALUES (?, ?, ?, ?, ?, ?, 'VALID')`,
+      [certId, certCode, registration.user_id, eventId, certificate_type || 'PARTICIPATION', verifyToken]
+    );
+
+    logAudit((req as any).user.id, 'CERTIFICATE_ISSUED', 'CERTIFICATE', certId, {
+      certificateId: certCode,
+      studentId: registration.user_id,
+      eventId
+    });
+
+    await createNotification(
+      registration.user_id,
+      'CERTIFICATE_AVAILABLE',
+      'Certificate Ready!',
+      `Congratulations! Your official verified certificate for "${event.title}" has been issued. Check your profile!`,
+      { certificateId: certCode }
+    );
+  } else {
+    certCode = (existingCert as any).certificate_id;
+  }
+
+  res.json({
+    message: 'Attendance claim approved. Verifiable certificate generated successfully!',
+    status: 'APPROVED',
+    certificateCode: certCode
+  });
 });
 
 export default router;
