@@ -328,7 +328,7 @@ export const api = {
 
   // Resources
   resources: {
-    list: (params?: { type?: string; difficulty?: string; domain?: string; club_id?: string; search?: string; bookmarked?: boolean; completed?: boolean }) => {
+    list: (params?: { type?: string; difficulty?: string; domain?: string; club_id?: string; search?: string; bookmarked?: boolean; completed?: boolean; semester?: string }) => {
       const q = new URLSearchParams(params as any).toString();
       return request<{ resources: Resource[] }>(`/resources${q ? `?${q}` : ''}`);
     },

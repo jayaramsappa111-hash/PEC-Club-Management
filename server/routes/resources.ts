@@ -9,7 +9,7 @@ const router = express.Router();
 
 // List resources
 router.get('/', optionalAuthenticate, (req: Request, res: Response) => {
-  const { type, difficulty, domain, club_id, search, bookmarked, completed } = req.query;
+  const { type, difficulty, domain, club_id, search, bookmarked, completed, semester } = req.query;
   const user = (req as any).user;
 
   let sql = `
@@ -40,6 +40,11 @@ router.get('/', optionalAuthenticate, (req: Request, res: Response) => {
   if (club_id) {
     sql += ' AND r.club_id = ?';
     params.push(club_id);
+  }
+
+  if (semester) {
+    sql += ' AND r.semester = ?';
+    params.push(semester);
   }
 
   if (search) {

@@ -4,24 +4,75 @@ import { PEC_CLUBS, PEC_DEPARTMENTS } from '../db/pec_clubs_data';
 export async function seedAllClubsAndData(): Promise<void> {
   console.log('[ClubSeedingService] Ensuring all 35 clubs, project showcases, and upcoming events are fully populated...');
 
-  // 1. Ensure departments exist
+  // 1. Ensure departments exist (FK-safe idempotent insert + update)
   for (const dept of PEC_DEPARTMENTS) {
+    const existing = queryOne('SELECT id FROM departments WHERE id = ? OR code = ?', [dept.id, dept.code]);
+    if (!existing) {
+      console.log(`[Seeder] Inserting department: ${dept.id} (${dept.name})`);
+      execute(
+        `INSERT INTO departments (id, name, code, description) VALUES (?, ?, ?, ?)`,
+        [dept.id, dept.name, dept.code, dept.description]
+      );
+    } else {
+      execute(
+        `UPDATE departments SET name = ?, code = ?, description = ? WHERE id = ?`,
+        [dept.name, dept.code, dept.description, existing.id]
+      );
+    }
+  }
+
+  // 2. Ensure institution exists (FK-safe idempotent insert + update)
+  const instId = 'pec';
+  const existingInst = queryOne('SELECT id FROM institutions WHERE id = ?', [instId]);
+  if (!existingInst) {
+    console.log(`[Seeder] Inserting institution: ${instId}`);
     execute(
-      `INSERT OR REPLACE INTO departments (id, name, code, description) VALUES (?, ?, ?, ?)`,
-      [dept.id, dept.name, dept.code, dept.description]
+      `INSERT INTO institutions (id, name, short_name, logo_url, website) VALUES (?, ?, ?, ?, ?)`,
+      [instId, 'Pragati University', 'PU', '/assets/institutions/pragati-engineering-college/logo.png', 'https://pragati.ac.in/']
+    );
+  } else {
+    execute(
+      `UPDATE institutions SET name = ?, short_name = ?, logo_url = ?, website = ? WHERE id = ?`,
+      ['Pragati University', 'PU', '/assets/institutions/pragati-engineering-college/logo.png', 'https://pragati.ac.in/', instId]
     );
   }
 
-  // 2. Ensure institution exists
-  execute(
-    `INSERT OR REPLACE INTO institutions (id, name, short_name, logo_url, website) VALUES (?, ?, ?, ?, ?)`,
-    ['pec', 'Pragati University', 'PU', '/assets/institutions/pragati-engineering-college/logo.png', 'https://pragati.ac.in/']
-  );
+  // 3. Ensure academic year 'ay-2025-26' exists (parent for projects)
+  const ayId = 'ay-2025-26';
+  const existingAy = queryOne('SELECT id FROM academic_years WHERE id = ?', [ayId]);
+  if (!existingAy) {
+    console.log(`[Seeder] Inserting academic year: ${ayId}`);
+    execute(
+      `INSERT INTO academic_years (id, name, start_date, end_date, is_current) VALUES (?, '2025-2026', '2025-07-01', '2026-06-30', 1)`,
+      [ayId]
+    );
+  }
 
-  // 3. Ensure all 35 clubs are seeded
+  // Helper to ensure a user exists for created_by foreign keys
+  const ensureUserExists = (userId: string, email: string, name: string, deptId: string) => {
+    const u = queryOne('SELECT id FROM users WHERE id = ?', [userId]);
+    if (!u) {
+      try {
+        console.log(`[Seeder] Ensuring fallback user exists: ${userId}`);
+        execute(
+          `INSERT INTO users (id, email, password_hash, is_active, is_verified) VALUES (?, ?, '$2a$10$dummyhash', 1, 1)`,
+          [userId, email]
+        );
+        execute(
+          `INSERT INTO profiles (user_id, name, department_id) VALUES (?, ?, ?)`,
+          [userId, name, deptId]
+        );
+      } catch (err) {
+        console.warn(`[Seeder Warning] Could not ensure user ${userId}:`, err);
+      }
+    }
+  };
+
+  // 4. Ensure all 35 clubs are seeded
   for (const club of PEC_CLUBS) {
     const existing = queryOne('SELECT id FROM clubs WHERE id = ? OR slug = ?', [club.id, club.slug]);
     if (!existing) {
+      console.log(`[Seeder] Inserting club: ${club.id}`);
       execute(
         `INSERT INTO clubs (
           id, institution_id, name, slug, description, category, department,
@@ -44,7 +95,6 @@ export async function seedAllClubsAndData(): Promise<void> {
         ]
       );
     } else {
-      // Update with rich description & domains if empty
       execute(
         `UPDATE clubs SET description = COALESCE(?, description), domains = COALESCE(?, domains), objectives = COALESCE(?, objectives), category = COALESCE(?, category) WHERE id = ?`,
         [club.description, club.domains, club.objectives, club.category, club.id]
@@ -52,7 +102,7 @@ export async function seedAllClubsAndData(): Promise<void> {
     }
   }
 
-  // 4. Ensure sample project showcases for clubs
+  // 5. Ensure sample project showcases for clubs
   const sampleProjects = [
     {
       id: 'proj-aerotelemetry',
@@ -107,17 +157,24 @@ export async function seedAllClubsAndData(): Promise<void> {
   ];
 
   for (const p of sampleProjects) {
+    ensureUserExists(p.created_by, `${p.created_by}@pragati.ac.in`, 'Sample Student', p.department_id);
     const existing = queryOne('SELECT id FROM projects WHERE id = ?', [p.id]);
     if (!existing) {
-      execute(
-        `INSERT INTO projects (id, title, description, domain, technologies, department_id, academic_year_id, created_by, is_featured, status)
-         VALUES (?, ?, ?, ?, ?, ?, '2025-2026', ?, ?, 'PUBLISHED')`,
-        [p.id, p.title, p.description, p.domain, p.technologies, p.department_id, p.created_by, p.is_featured]
-      );
+      console.log(`[Seeder] Inserting project: ${p.id}`);
+      try {
+        execute(
+          `INSERT INTO projects (id, title, description, domain, technologies, department_id, academic_year_id, created_by, is_featured, status)
+           VALUES (?, ?, ?, ?, ?, ?, 'ay-2025-26', ?, ?, 'PUBLISHED')`,
+          [p.id, p.title, p.description, p.domain, p.technologies, p.department_id, p.created_by, p.is_featured]
+        );
+      } catch (err) {
+        console.error(`[Seeder Error] Failed to insert project ${p.id}:`, err);
+        throw err;
+      }
     }
   }
 
-  // 5. Ensure upcoming events for clubs
+  // 6. Ensure upcoming events for clubs
   const sampleEvents = [
     {
       id: 'evt-techfest-2026',
@@ -167,29 +224,42 @@ export async function seedAllClubsAndData(): Promise<void> {
   ];
 
   for (const evt of sampleEvents) {
+    ensureUserExists(evt.created_by, `${evt.created_by}@pragati.ac.in`, 'Sample Admin', 'dept-cse');
+    const clubExists = queryOne('SELECT id FROM clubs WHERE id = ?', [evt.club_id]);
+    if (!clubExists) {
+      console.warn(`[Seeder Warning] Club ${evt.club_id} for event ${evt.id} does not exist.`);
+      continue;
+    }
     const existing = queryOne('SELECT id FROM events WHERE id = ?', [evt.id]);
     if (!existing) {
-      execute(
-        `INSERT INTO events (id, club_id, title, slug, description, event_type, start_datetime, end_datetime, venue, eligibility, capacity, status, created_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          evt.id,
-          evt.club_id,
-          evt.title,
-          evt.slug,
-          evt.description,
-          evt.event_type,
-          evt.start_datetime,
-          evt.end_datetime,
-          evt.venue,
-          evt.eligibility,
-          evt.capacity,
-          evt.status,
-          evt.created_by,
-        ]
-      );
+      console.log(`[Seeder] Inserting event: ${evt.id}`);
+      try {
+        execute(
+          `INSERT INTO events (id, club_id, title, slug, description, event_type, start_datetime, end_datetime, venue, eligibility, capacity, status, created_by)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            evt.id,
+            evt.club_id,
+            evt.title,
+            evt.slug,
+            evt.description,
+            evt.event_type,
+            evt.start_datetime,
+            evt.end_datetime,
+            evt.venue,
+            evt.eligibility,
+            evt.capacity,
+            evt.status,
+            evt.created_by,
+          ]
+        );
+      } catch (err) {
+        console.error(`[Seeder Error] Failed to insert event ${evt.id}:`, err);
+        throw err;
+      }
     }
   }
 
   console.log('[ClubSeedingService] Successfully populated all clubs, projects, and upcoming events.');
 }
+
