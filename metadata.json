@@ -1,6 +1,6 @@
 {
   "name": "Pragati University Student Club Management Platform",
   "description": "Centralized lifecycle management platform for Pragati University student clubs, technical societies, memberships, events, attendance, and accredited portfolios.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

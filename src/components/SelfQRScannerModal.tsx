@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, QrCode, CheckCircle, AlertCircle, Camera, Sparkles, RefreshCw, Clipboard } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 import { api } from '../services/api';
 
 interface SelfQRScannerModalProps {
@@ -18,6 +19,7 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
   const [manualCode, setManualCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(true);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const [result, setResult] = useState<{ success: boolean; message: string; checkInTime?: string } | null>(null);
 
   // official check-in code for this event
@@ -56,6 +58,70 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
     triggerCheckIn(manualCode.trim());
   };
 
+  // Real-time camera QR scanner effect
+  useEffect(() => {
+    let html5Qrcode: Html5Qrcode | null = null;
+    const containerId = 'self-qr-reader-container';
+
+    // Helper to start scanning
+    const startScanning = async () => {
+      try {
+        // Wait 300ms for DOM element to be fully rendered
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        const element = document.getElementById(containerId);
+        if (!element) return;
+
+        html5Qrcode = new Html5Qrcode(containerId);
+        
+        await html5Qrcode.start(
+          { facingMode: 'environment' },
+          {
+            fps: 15,
+            qrbox: (width, height) => {
+              const size = Math.min(width, height) * 0.75;
+              return { width: size, height: size };
+            },
+          },
+          (decodedText) => {
+            console.log('[Real Scanner] Decoded text successfully:', decodedText);
+            // Stop scanning and process check-in
+            if (html5Qrcode && html5Qrcode.isScanning) {
+              html5Qrcode.stop().then(() => {
+                triggerCheckIn(decodedText);
+              }).catch((err) => {
+                console.error('[Real Scanner] Error stopping:', err);
+                triggerCheckIn(decodedText);
+              });
+            } else {
+              triggerCheckIn(decodedText);
+            }
+          },
+          (errorMessage) => {
+            // Optional: Handle scan noise frame exceptions
+          }
+        );
+        setCameraError(null);
+      } catch (err: any) {
+        console.error('[Real Scanner] Camera initialization error:', err);
+        setCameraError(
+          'Could not access video input. Verify camera permissions, or use the Simulator / Fallback inputs below.'
+        );
+      }
+    };
+
+    if (scanning && !loading && !result) {
+      startScanning();
+    }
+
+    return () => {
+      if (html5Qrcode && html5Qrcode.isScanning) {
+        html5Qrcode.stop().catch((err) => {
+          console.error('[Real Scanner] Error stopping during cleanup:', err);
+        });
+      }
+    };
+  }, [scanning, loading, result]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
@@ -63,7 +129,7 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-700 rounded-lg transition"
+          className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-700 rounded-lg transition cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -79,31 +145,38 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
           </div>
         </div>
 
-        {/* Scanning Window / Laser Frame */}
+        {/* Scanning Window / Real Camera Frame */}
         {scanning && (
-          <div className="relative aspect-square w-full max-w-[280px] mx-auto bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-inner flex flex-col items-center justify-center p-4 mb-6">
+          <div className="relative aspect-square w-full max-w-[280px] mx-auto bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-inner flex flex-col items-center justify-center mb-6">
             
-            {/* Live simulation backdrop */}
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-400 via-slate-900 to-slate-950 animate-pulse"></div>
-            
-            {/* Moving Laser Sweep Line */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent shadow-[0_0_10px_#f97316] animate-bounce z-10"></div>
+            {/* Real Video Stream Container */}
+            <div id="self-qr-reader-container" className="absolute inset-0 w-full h-full" />
 
-            {/* Simulated Camera Viewfinder Grid Corner Accents */}
-            <div className="absolute top-6 left-6 w-5 h-5 border-t-2 border-l-2 border-orange-500 rounded-tl-sm"></div>
-            <div className="absolute top-6 right-6 w-5 h-5 border-t-2 border-r-2 border-orange-500 rounded-tr-sm"></div>
-            <div className="absolute bottom-6 left-6 w-5 h-5 border-b-2 border-l-2 border-orange-500 rounded-bl-sm"></div>
-            <div className="absolute bottom-6 right-6 w-5 h-5 border-b-2 border-r-2 border-orange-500 rounded-br-sm"></div>
+            {/* Overlay indicators */}
+            <div className="absolute inset-0 pointer-events-none border-[3px] border-slate-900/40 rounded-2xl">
+              {/* Moving Laser Sweep Line */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent shadow-[0_0_10px_#f97316] animate-bounce z-10"></div>
 
-            {/* Centered QR Frame */}
-            <div className="w-32 h-32 border border-slate-700/60 flex items-center justify-center rounded-lg bg-slate-900/40 relative">
-              <Camera className="w-8 h-8 text-slate-600 animate-pulse" />
-              <div className="absolute -inset-1 border border-dashed border-orange-500/40 rounded-lg animate-spin-slow"></div>
+              {/* Viewfinder Grid Corner Accents */}
+              <div className="absolute top-4 left-4 w-5 h-5 border-t-2 border-l-2 border-orange-500 rounded-tl-sm"></div>
+              <div className="absolute top-4 right-4 w-5 h-5 border-t-2 border-r-2 border-orange-500 rounded-tr-sm"></div>
+              <div className="absolute bottom-4 left-4 w-5 h-5 border-b-2 border-l-2 border-orange-500 rounded-bl-sm"></div>
+              <div className="absolute bottom-4 right-4 w-5 h-5 border-b-2 border-r-2 border-orange-500 rounded-br-sm"></div>
             </div>
 
+            {/* Error Message when Camera access is blocked */}
+            {cameraError && (
+              <div className="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center text-center p-4 z-20 space-y-2">
+                <Camera className="w-8 h-8 text-slate-500 animate-pulse" />
+                <span className="text-[10px] text-slate-400 font-medium px-2 leading-relaxed">
+                  {cameraError}
+                </span>
+              </div>
+            )}
+
             {/* Frame Helper Text */}
-            <div className="absolute bottom-4 left-0 right-0 text-center text-[10px] text-slate-400 tracking-wide px-3 select-none">
-              Position college event check-in QR within frame
+            <div className="absolute bottom-3 left-0 right-0 text-center text-[9px] text-white tracking-wide px-3 select-none z-10 bg-black/45 py-1 backdrop-blur-xs">
+              Align event check-in QR code within frame
             </div>
           </div>
         )}
@@ -149,12 +222,12 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
                 <span>Camera Simulation Helper</span>
               </div>
               <p className="text-[10px] text-slate-500 leading-normal">
-                To test check-in without an actual camera hardware interface in the emulator, click below to trigger a simulated successful QR scan:
+                To test check-in without physical camera hardware or when permission is blocked, click below to trigger a simulated successful QR scan:
               </p>
               
               <button
                 onClick={simulateSuccessScan}
-                className="w-full py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5"
+                className="w-full py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-bold rounded-lg transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Camera className="w-3.5 h-3.5" />
                 Simulate Successful QR Scan
@@ -172,7 +245,7 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
                   onClick={() => {
                     setManualCode(officialCode);
                   }}
-                  className="text-[10px] text-orange-600 hover:text-orange-700 font-medium flex items-center gap-0.5"
+                  className="text-[10px] text-orange-600 hover:text-orange-700 font-medium flex items-center gap-0.5 cursor-pointer"
                 >
                   <Clipboard className="w-3 h-3" /> Insert Code
                 </button>
@@ -189,7 +262,7 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
                 <button
                   type="submit"
                   disabled={!manualCode.trim()}
-                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-xs font-bold rounded-lg transition whitespace-nowrap"
+                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-xs font-bold rounded-lg transition whitespace-nowrap cursor-pointer"
                 >
                   Verify
                 </button>
@@ -205,14 +278,15 @@ export const SelfQRScannerModal: React.FC<SelfQRScannerModalProps> = ({
               onClick={() => {
                 setScanning(true);
                 setResult(null);
+                setCameraError(null);
               }}
-              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition text-center border border-slate-300"
+              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition text-center border border-slate-300 cursor-pointer"
             >
               Scan Again
             </button>
             <button
               onClick={onClose}
-              className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition text-center"
+              className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition text-center cursor-pointer"
             >
               Done &amp; Exit
             </button>

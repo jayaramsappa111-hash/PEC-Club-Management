@@ -135,7 +135,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNavigate, onOpenAu
     ['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'DEPARTMENT_ADMIN'].includes(r)
   );
 
-  const domains = ['All', 'Artificial Intelligence', 'Robotics & Hardware', 'Distributed Systems', 'Cybersecurity', 'Web Architecture'];
+  const domains = ['All', 'Artificial Intelligence', 'Robotics & Hardware', 'AeroTelemetry', 'PragEduLLM', 'SmartGrid BMS', 'ZeroWaste-GIS', 'Cybersecurity'];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in bg-slate-50 min-h-screen text-slate-900">

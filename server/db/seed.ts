@@ -3,6 +3,7 @@ import { db, queryOne, execute } from './database';
 import { initSchema } from './schema';
 import { migratePECClubs } from './pec_migration';
 import { enrichPECDatabase } from './pec_enrichment';
+import { seedAllClubsAndShowcases } from '../services/club_seeder_service';
 
 export async function seedDatabase() {
   initSchema();
@@ -877,4 +878,5 @@ export async function seedDatabase() {
 
   console.log('[Seed] Database successfully populated with relational entities!');
   await enrichPECDatabase();
+  await seedAllClubsAndShowcases();
 }

@@ -455,12 +455,15 @@ router.post('/:id/feedback', authenticate, async (req: Request, res: Response): 
 });
 
 // View Feedback for event
-router.get('/:id/feedback', authenticate, requireRole(['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'CLUB_ADMIN']), (req: Request, res: Response): void => {
+router.get('/:id/feedback', optionalAuthenticate, (req: Request, res: Response): void => {
   const { id } = req.params;
+  const user = (req as any).user;
+  const isAdmin = user && user.roles.some((r: string) => ['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'CLUB_ADMIN'].includes(r));
+
   const feedbacks = queryAll(
-    `SELECT ef.*, p.name as student_name
+    `SELECT ef.*, ${isAdmin ? 'p.name as student_name' : "'Anonymous Student' as student_name"}
      FROM event_feedback ef
-     JOIN profiles p ON p.user_id = ef.user_id
+     LEFT JOIN profiles p ON p.user_id = ef.user_id
      WHERE ef.event_id = ?
      ORDER BY ef.created_at DESC`,
     [id]

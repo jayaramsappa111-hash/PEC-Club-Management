@@ -155,6 +155,246 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
         </div>
       </div>
 
+      {/* Role-Based Academic Workspace Console */}
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-blue-900" />
+              Institutional Role-Based Workspace Console
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">Custom administrative privileges, workspace actions, and auditing active for your account</p>
+          </div>
+          <span className="px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-900 font-mono font-bold text-[10px] uppercase rounded">
+            Authorized Node Status: Verified
+          </span>
+        </div>
+
+        {/* Dynamic Display based on active primary role */}
+        {user.roles.includes('SUPER_ADMIN') && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse"></span>
+                Super Administrator Controls Active
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                You have unrestricted access to govern all 35 accredited student clubs, override system properties, check complete platform audit trails, and manage user identity registries for Pragati University.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1.5">
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Complete Audit Logs
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; User Directory Control
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Global Certificate Minting
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 space-y-3 flex flex-col justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-purple-950">Administrative Shortcuts</h4>
+                <p className="text-[11px] text-purple-800 mt-1 leading-normal font-normal">Launch complete administrative tables to verify attendance claims, charter new clubs, or view live audit metrics.</p>
+              </div>
+              <button
+                onClick={() => onNavigate('admin-portal')}
+                className="w-full py-2 bg-slate-950 hover:bg-slate-900 text-white text-[11px] font-bold rounded-lg transition"
+              >
+                Go to Administrative Portal &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
+        {user.roles.includes('DEPARTMENT_ADMIN') && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-orange-600 animate-pulse"></span>
+                Department Admin / HOD Console Active
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Overseeing department chapters, accredited student portfolios, and endorsing official certifications. Monitor the development rate of student innovation projects and approve credentials.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1.5">
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Department Chapters
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Endorse Certifications
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Project Portfolios
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-orange-50 border border-orange-200 space-y-3 flex flex-col justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-orange-950">HOD Workspace Desk</h4>
+                <p className="text-[11px] text-orange-800 mt-1 leading-normal font-normal">Review performance trends across CSE / ECE / ME student chapters and authorize certificate mints.</p>
+              </div>
+              <button
+                onClick={() => onNavigate('admin-portal')}
+                className="w-full py-2 bg-orange-950 hover:bg-orange-900 text-white text-[11px] font-bold rounded-lg transition"
+              >
+                Open Admin Portal &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
+        {user.roles.includes('FACULTY_COORDINATOR') && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                Faculty Chapter Advisor Console Active
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                You are responsible for mentoring technical clubs, approving student project registrations, authorizing executive team composition changes, and stamping attendance logs.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1.5">
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Project Review Desk
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Stamp Attendance Logs
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Charter Authorizations
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-3 flex flex-col justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-emerald-950">Advisor Desk</h4>
+                <p className="text-[11px] text-emerald-800 mt-1 leading-normal font-normal">Approve pending project registries, verify attendance check-ins, or review committee lists.</p>
+              </div>
+              <button
+                onClick={() => onNavigate('admin-portal')}
+                className="w-full py-2 bg-emerald-900 hover:bg-emerald-800 text-white text-[11px] font-bold rounded-lg transition"
+              >
+                Open Administrative Portal &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
+        {user.roles.includes('CLUB_ADMIN') && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                Club Coordinator / Admin Workspace Active
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Manage your student executive team, plan technical bootcamps, and submit circulars to notify members about upcoming event guidelines.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1.5">
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Publish Official Circulars
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Manage Executive Committee
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Draft Activity Budgets
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200 space-y-3 flex flex-col justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-indigo-950">Coordinator Workspace</h4>
+                <p className="text-[11px] text-indigo-800 mt-1 leading-normal font-normal">Verify club registration requests and create announcements for your tech chapter members.</p>
+              </div>
+              <button
+                onClick={() => onNavigate('admin-portal')}
+                className="w-full py-2 bg-indigo-900 hover:bg-indigo-800 text-white text-[11px] font-bold rounded-lg transition"
+              >
+                Open Admin Portal &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
+        {user.roles.includes('CLUB_MEMBER') && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-sky-600"></span>
+                Technical Club Member Desk Active
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Access exclusive student chapter documents, technical e-resources, step-by-step roadmap guides, and download your verified digital membership card for student chapter voting.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1.5">
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Download Verified Digital Card
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Access Members-Only Resources
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Exclusive Hackathon Entry
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-sky-50 border border-sky-200 space-y-3 flex flex-col justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-sky-950">Technical Resources Desk</h4>
+                <p className="text-[11px] text-sky-800 mt-1 leading-normal font-normal">Explore detailed coding guides, specialized AI &amp; ECE roadmaps, or preview your dynamic entry credentials.</p>
+              </div>
+              <button
+                onClick={() => onNavigate('learning')}
+                className="w-full py-2 bg-sky-900 hover:bg-sky-800 text-white text-[11px] font-bold rounded-lg transition"
+              >
+                Access E-Resources &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* If user is a general student or has no other specific elevated role */}
+        {!user.roles.some(r => ['SUPER_ADMIN', 'FACULTY_COORDINATOR', 'CLUB_ADMIN', 'DEPARTMENT_ADMIN', 'CLUB_MEMBER'].includes(r)) && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                Student Workspace Console Active
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Explore the 35 official technical chapters at Pragati University, register for upcoming hackathons, submit your innovative project portfolios for faculty advisory feedback, and view your verified digital ID pass.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1.5">
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Register for Active Workshops
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Join Accredited Technical Chapters
+                </span>
+                <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                  &bull; Archive Engineering Projects
+                </span>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 space-y-3 flex flex-col justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-blue-950">Student Shortcuts</h4>
+                <p className="text-[11px] text-blue-800 mt-1 leading-normal font-normal">Enroll in technical club chapters, view active events, or publish your student software projects.</p>
+              </div>
+              <button
+                onClick={() => onNavigate('clubs')}
+                className="w-full py-2 bg-blue-950 hover:bg-blue-900 text-white text-[11px] font-bold rounded-lg transition"
+              >
+                Browse Clubs &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* SECTION 1: Digital Membership Passes */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">

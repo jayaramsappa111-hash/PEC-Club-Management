@@ -15,6 +15,7 @@ import {
   Building2,
   GraduationCap
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import { api } from '../services/api';
 import { Event, EventRegistration } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -47,6 +48,9 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Official dynamic Event QR state (generated client-side)
+  const [eventCheckInQrUrl, setEventCheckInQrUrl] = useState<string>('');
+
   // Scanner modal for organizers
   const [showScanner, setShowScanner] = useState(false);
 
@@ -56,15 +60,18 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
   const fetchEvent = async () => {
     setLoading(true);
     try {
-      const [eRes, fRes] = await Promise.all([
-        api.events.get(eventId),
-        api.events.getFeedback(eventId),
-      ]);
+      const eRes = await api.events.get(eventId);
       setEvent(eRes.event);
       setUserRegistration(eRes.userRegistration || null);
       setUserAttendance(eRes.userAttendance || null);
       setUserFeedback(eRes.userFeedback || null);
-      setFeedbacks(fRes.feedbacks || []);
+
+      try {
+        const fRes = await api.events.getFeedback(eventId);
+        setFeedbacks(fRes.feedbacks || []);
+      } catch {
+        setFeedbacks([]);
+      }
     } catch (err) {
       console.error('Failed to load event details', err);
     } finally {
@@ -75,6 +82,26 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
   useEffect(() => {
     fetchEvent();
   }, [eventId, user]);
+
+  // Generate official real-time check-in QR code
+  useEffect(() => {
+    if (event) {
+      QRCode.toDataURL(`PU-EVENT-CHECKIN-${event.id}`, {
+        width: 350,
+        margin: 2,
+        color: {
+          dark: '#0f172a', // slate-900
+          light: '#f8fafc', // slate-50
+        }
+      })
+        .then((url) => {
+          setEventCheckInQrUrl(url);
+        })
+        .catch((err) => {
+          console.error('Failed to generate event check-in QR code', err);
+        });
+    }
+  }, [event]);
 
   const handleRegister = async () => {
     if (!user) {
@@ -122,7 +149,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
         <div className="text-sm font-bold text-slate-800">Event record not found.</div>
         <button
           onClick={() => onNavigate('events')}
-          className="px-4 py-2 bg-blue-900 text-white rounded-lg text-xs font-bold"
+          className="px-4 py-2 bg-blue-900 text-white rounded-lg text-xs font-bold cursor-pointer"
         >
           Back to Events Directory
         </button>
@@ -140,7 +167,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
       <div className="flex items-center justify-between">
         <button
           onClick={() => onNavigate('events')}
-          className="text-xs text-slate-600 hover:text-blue-900 font-medium flex items-center gap-1.5 transition"
+          className="text-xs text-slate-600 hover:text-blue-900 font-medium flex items-center gap-1.5 transition cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Events Directory
         </button>
@@ -200,33 +227,50 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
                 ) : (
                   <div className="space-y-2 pt-2 border-t border-emerald-200/50">
                     <div className="text-[10px] text-slate-500">
-                      Present QR code at event entrance for scanning, or scan the official event QR:
+                      You are ready to scan physical attendance check-in:
                     </div>
                     <button
                       onClick={() => setShowSelfScanner(true)}
-                      className="w-full px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-bold transition flex items-center justify-center gap-1.5 shadow-xs"
+                      className="w-full px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-bold transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer animate-pulse"
                     >
                       <QrCode className="w-3.5 h-3.5" />
-                      Self Check-In via QR Scanner
+                      Scan Attendance (Self Check-In)
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <button
-                onClick={handleRegister}
-                disabled={registering || event.status !== 'REGISTRATION_OPEN'}
-                className="w-full px-5 py-2.5 rounded-lg bg-blue-900 hover:bg-blue-800 disabled:opacity-50 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs"
-              >
-                <UserCheck className="w-4 h-4" />
-                {registering ? 'Registering...' : 'Register for Event'}
-              </button>
+              <div className="w-full space-y-2">
+                <button
+                  onClick={handleRegister}
+                  disabled={registering || event.status !== 'REGISTRATION_OPEN'}
+                  className="w-full px-5 py-2.5 rounded-lg bg-blue-900 hover:bg-blue-800 disabled:opacity-50 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                >
+                  <UserCheck className="w-4 h-4" />
+                  {registering ? 'Registering...' : 'Register for Event'}
+                </button>
+
+                {user && (
+                  <button
+                    onClick={() => {
+                      setStatusMsg({
+                        type: 'error',
+                        text: 'You must register for this event first before checking in!'
+                      });
+                    }}
+                    className="w-full px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 text-xs font-bold border border-slate-300 border-dashed transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <QrCode className="w-4 h-4 text-slate-400" />
+                    Scan Attendance
+                  </button>
+                )}
+              </div>
             )}
 
             {isOrganizerOrAdmin && (
               <button
                 onClick={() => setShowScanner(true)}
-                className="w-full px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold border border-slate-300 transition flex items-center justify-center gap-2"
+                className="w-full px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold border border-slate-300 transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <QrCode className="w-4 h-4 text-blue-900" />
                 Open Attendance QR Scanner
@@ -242,15 +286,16 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               ? 'bg-emerald-50 border border-emerald-200 text-emerald-900'
               : 'bg-rose-50 border border-rose-200 text-rose-900'
           }`}>
-            <CheckCircle className="w-4 h-4 shrink-0" />
+            <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{statusMsg.text}</span>
           </div>
         )}
       </div>
 
-      {/* Attendance & Feedback Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Feedback form */}
+      {/* Attendance & Feedback Section Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        {/* Panel 1: Feedback Form */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-blue-900" />
@@ -275,7 +320,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
                       type="button"
                       key={s}
                       onClick={() => setRating(s)}
-                      className="p-1 text-slate-300 hover:text-amber-500 transition"
+                      className="p-1 text-slate-300 hover:text-amber-500 transition cursor-pointer"
                     >
                       <Star className={`w-5 h-5 ${s <= rating ? 'fill-amber-500 text-amber-500' : 'text-slate-300'}`} />
                     </button>
@@ -298,21 +343,53 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               <button
                 type="submit"
                 disabled={submittingFeedback}
-                className="px-4 py-2 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold transition"
+                className="px-4 py-2 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold transition cursor-pointer"
               >
                 {submittingFeedback ? 'Submitting...' : 'Submit Evaluation'}
               </button>
             </form>
           ) : (
-            <p className="text-xs text-slate-500">
-              Only registered participants may submit post-session feedback.
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Only registered participants may submit post-session feedback. Please register first.
             </p>
           )}
         </div>
 
-        {/* Recent Participant Reviews */}
+        {/* Panel 2: Real-time Event check-in QR displayer */}
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col items-center justify-between text-center space-y-4">
+          <div className="flex items-center gap-2 self-start w-full border-b border-slate-100 pb-3">
+            <QrCode className="w-5 h-5 text-orange-600" />
+            <h3 className="text-sm font-bold text-slate-900 text-left">Official Check-In QR</h3>
+          </div>
+          
+          <div className="flex-1 flex flex-col items-center justify-center space-y-3">
+            {eventCheckInQrUrl ? (
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center space-y-1.5 shadow-inner">
+                <img
+                  src={eventCheckInQrUrl}
+                  alt="Official Check-In QR"
+                  className="w-40 h-40 border border-slate-200 bg-white p-1.5 rounded-lg"
+                />
+                <span className="text-[9px] text-slate-500 font-mono select-all">
+                  PU-EVENT-CHECKIN-{event.id}
+                </span>
+              </div>
+            ) : (
+              <div className="w-40 h-40 bg-slate-100 rounded-lg animate-pulse border border-slate-200 flex items-center justify-center text-xs text-slate-400">
+                Generating QR...
+              </div>
+            )}
+            <p className="text-[11px] text-slate-500 leading-normal max-w-xs">
+              Present this code for scanning. Scanning this QR code with the **Scan Attendance** button checks you in instantly!
+            </p>
+          </div>
+        </div>
+
+        {/* Panel 3: Recent Participant Reviews */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
-          <h3 className="text-sm font-bold text-slate-900">Participant Feedback ({feedbacks.length})</h3>
+          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">
+            Participant Reviews ({feedbacks.length})
+          </h3>
           {feedbacks.length === 0 ? (
             <p className="text-xs text-slate-500">No participant reviews published yet.</p>
           ) : (

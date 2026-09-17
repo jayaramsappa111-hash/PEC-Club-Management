@@ -2,9 +2,13 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { execute, queryOne, queryAll } from './database';
 import { PEC_CLUBS } from './pec_clubs_data';
+import { seedAllClubsAndData } from '../services/club_seeding_service';
 
 export async function enrichPECDatabase(): Promise<void> {
   console.log('[Enrichment] Starting real data enrichment for Pragati University clubs...');
+  
+  await seedAllClubsAndData();
+
 
   const passwordHash = await bcrypt.hash('Password123!', 10);
 
